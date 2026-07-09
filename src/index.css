@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/nunito';
+
+@theme {
+  --font-sans: 'Nunito Variable', ui-rounded, system-ui, -apple-system, sans-serif;
+
+  /* Nutri palette — sampled from the reference designs */
+  --color-cream: #faf7e8; /* app background */
+  --color-cream-dark: #f3eed8; /* card beige (home meal cards, planner cells) */
+  --color-paper: #fffdf3; /* raised surfaces, pills, inputs */
+  --color-brand: #4c9b50; /* primary green */
+  --color-brand-dark: #3f8843;
+  --color-brand-deep: #35753a; /* logo wordmark green */
+  --color-brand-tint: #e9f3dc; /* tip banners, soft green fills */
+  --color-ink: #3a3a2c; /* primary warm dark text */
+  --color-ink-soft: #62604d; /* secondary text */
+  --color-muted: #94917a; /* placeholder / tertiary text */
+  --color-line: #e8e2c9; /* hairline borders on cream */
+  --color-line-soft: #efe9d2;
+  --color-danger: #d9534f;
+
+  --radius-card: 1.125rem; /* 18px cards */
+  --radius-field: 0.875rem; /* 14px inputs */
+
+  --shadow-card: 0 1px 2px rgb(58 58 44 / 0.04), 0 4px 12px rgb(58 58 44 / 0.05);
+  --shadow-fab: 0 6px 16px rgb(76 155 80 / 0.38);
+  --shadow-sheet: 0 -8px 32px rgb(58 58 44 / 0.14);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-cream text-ink font-sans antialiased;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/* iOS/Android safe areas */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Hide scrollbars on horizontal strips while keeping them scrollable */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+}
