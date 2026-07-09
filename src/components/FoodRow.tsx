@@ -1,45 +1,80 @@
-import { useState } from 'react'
-import { MoreVertical, Trash2 } from 'lucide-react'
-import { getFood } from '../data/foods'
-import { DishThumb } from './MealSceneThumb'
+import { Check, Trash2 } from 'lucide-react'
+import { getFoodDisplayName } from '../data/foods'
+import { FoodIcon } from './FoodIcon'
+import type { FoodIconId } from '../types'
 
-/** White row inside a Day Plan meal card: dish, name, kebab menu. */
-export function FoodRow({ foodId, onRemove }: { foodId: string; onRemove: () => void }) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const food = getFood(foodId)
+export type FoodRowVariant = 'planning-pending' | 'planning-done' | 'logging'
+
+/** Thin-bordered food row inside a Day Plan meal card. */
+export function FoodRow({
+  foodId,
+  iconId,
+  customName,
+  variant,
+  onLog,
+  onRemove,
+}: {
+  foodId: string
+  iconId: FoodIconId
+  customName?: string
+  variant: FoodRowVariant
+  onLog?: () => void
+  onRemove?: () => void
+}) {
+  const name = getFoodDisplayName(foodId, customName)
+  const done = variant === 'planning-done'
+
   return (
-    <div className="relative flex items-center gap-3 rounded-2xl bg-paper px-3 py-2.5 shadow-card">
-      <DishThumb foodId={foodId} />
-      <span className="flex-1 text-[15px] font-bold text-ink">{food.name}</span>
-      <button
-        aria-label={`Options for ${food.name}`}
-        onClick={() => setMenuOpen((v) => !v)}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted active:bg-cream-dark"
-      >
-        <MoreVertical size={18} />
-      </button>
+    <div
+      className={`flex items-center gap-3.5 rounded-2xl border px-3 py-3 ${
+        done ? 'border-brand/35 bg-brand-tint/50' : 'border-line bg-paper'
+      }`}
+    >
+      <FoodIcon
+        id={iconId}
+        className={`h-[3.75rem] w-[3.75rem] shrink-0 object-contain ${done ? 'opacity-55 saturate-50' : ''}`}
+      />
+      <div className="min-w-0 flex-1">
+        <span
+          className={`block truncate text-[15px] font-bold ${done ? 'text-ink-soft line-through decoration-brand/40' : 'text-ink'}`}
+        >
+          {name}
+        </span>
+        {done && (
+          <span className="mt-0.5 block text-[11.5px] font-extrabold text-brand">Logged ✓</span>
+        )}
+      </div>
 
-      {menuOpen && (
-        <>
+      {variant === 'planning-pending' && (
+        <div className="flex shrink-0 items-center gap-1.5">
           <button
-            aria-hidden
-            tabIndex={-1}
-            className="fixed inset-0 z-10 cursor-default"
-            onClick={() => setMenuOpen(false)}
-          />
-          <div className="absolute top-11 right-2 z-20 overflow-hidden rounded-xl border border-line bg-paper shadow-card">
-            <button
-              onClick={() => {
-                setMenuOpen(false)
-                onRemove()
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-danger active:bg-cream-dark"
-            >
-              <Trash2 size={15} />
-              Remove
-            </button>
-          </div>
-        </>
+            type="button"
+            aria-label={`Mark ${name} as eaten`}
+            onClick={onLog}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white active:bg-brand-dark"
+          >
+            <Check size={17} strokeWidth={2.8} />
+          </button>
+          <button
+            type="button"
+            aria-label={`Delete ${name}`}
+            onClick={onRemove}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-paper text-danger active:bg-cream-dark"
+          >
+            <Trash2 size={16} strokeWidth={2.4} />
+          </button>
+        </div>
+      )}
+
+      {variant === 'logging' && (
+        <button
+          type="button"
+          aria-label={`Delete ${name}`}
+          onClick={onRemove}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-paper text-danger active:bg-cream-dark"
+        >
+          <Trash2 size={16} strokeWidth={2.4} />
+        </button>
       )}
     </div>
   )

@@ -9,12 +9,37 @@ export const MEAL_LABELS: Record<MealType, string> = {
   dinner: 'Dinner',
 }
 
+/** Whether a food entry is planned ahead or logged after eating. */
+export type MealMode = 'planned' | 'logged'
+
+export const MEAL_MODES: MealMode[] = ['planned', 'logged']
+
+export const MEAL_MODE_LABELS: Record<MealMode, string> = {
+  planned: 'Planning',
+  logged: 'Logging',
+}
+
+export type FoodIconId =
+  | 'icon-raspberries'
+  | 'icon-pancakes'
+  | 'icon-milk'
+  | 'icon-oatmeal-bowl'
+  | 'icon-egg'
+  | 'icon-sandwich'
+  | 'icon-soup'
+  | 'icon-avocado-bowl'
+  | 'icon-burger'
+  | 'icon-pizza'
+  | 'icon-chicken'
+
 export interface Food {
   id: string
   name: string
   emoji: string
   /** pastel background behind the emoji placeholder */
   tint: string
+  /** default icon from the predefined food-icon set */
+  iconId: FoodIconId
   /** meal the food is usually eaten at — used to group the Add Food picker */
   usualMeal: MealType
 }
@@ -23,10 +48,21 @@ export interface Food {
 export interface MealItem {
   id: string
   foodId: string
+  iconId: FoodIconId
+  /** set when the user adds a custom food name */
+  customName?: string
+  /** set on a planned item once the user marks it as eaten */
+  loggedAt?: string
 }
 
-/** ISO date (yyyy-mm-dd) → meal type → items */
-export type PlanByDate = Record<string, Partial<Record<MealType, MealItem[]>>>
+/** Planned and logged items kept separate for the same meal slot. */
+export interface MealSlot {
+  planned: MealItem[]
+  logged: MealItem[]
+}
+
+/** ISO date (yyyy-mm-dd) → meal type → planned + logged items */
+export type PlanByDate = Record<string, Partial<Record<MealType, MealSlot>>>
 
 export type AvatarId =
   | 'avatar-avocado'

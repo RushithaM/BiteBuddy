@@ -1,21 +1,30 @@
+import { useState } from 'react'
 import { CalendarDays } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Screen, SubHeader } from '../components/Screen'
-import { FoodRow } from '../components/FoodRow'
-import { InlineAddButton } from '../components/Buttons'
+import { MealPlanSection } from '../components/MealPlanSection'
+import { DayPlanDateLine } from '../components/DayPlanDateLine'
+import { PlanLogToggle } from '../components/PlanLogToggle'
 import { TipBanner } from '../components/TipBanner'
+import { showToast } from '../components/toast'
 import { usePlans, useMealActions } from '../state/useAppData'
-import { MEAL_TYPES, MEAL_LABELS, type MealType, type MealItem } from '../types'
-import { MEAL_META } from '../components/meals'
-import { formatFullDate, todayISO } from '../lib/dates'
+import { dayHasItems, getMealSlot, itemsForMode } from '../lib/mealPlans'
+import { MEAL_TYPES, type MealMode } from '../types'
+import { todayISO } from '../lib/dates'
 
 export function DayPlan() {
   const navigate = useNavigate()
   const { date = todayISO() } = useParams()
   const plans = usePlans()
-  const { removeItem } = useMealActions()
+  const { removeItem, logPlannedItem } = useMealActions()
+  const [viewMode, setViewMode] = useState<MealMode>('planned')
   const dayPlan = plans[date] ?? {}
-  const hasAnyFood = MEAL_TYPES.some((m) => (dayPlan[m] ?? []).length > 0)
+  const hasVisibleFood = dayHasItems(dayPlan, viewMode)
+
+  const logItem = (meal: (typeof MEAL_TYPES)[number], itemId: string) => {
+    logPlannedItem(date, meal, itemId)
+    showToast('Marked as eaten')
+  }
 
   return (
     <Screen>
@@ -24,68 +33,45 @@ export function DayPlan() {
         right={<CalendarDays size={22} strokeWidth={2} className="text-ink" />}
       />
 
-      <div className="flex items-center justify-center gap-1.5 pb-1">
-        <CalendarDays size={15} className="text-brand" />
-        <span className="text-[13.5px] font-bold text-ink-soft">{formatFullDate(date)}</span>
+      <DayPlanDateLine date={date} />
+
+      <div className="mt-3 mb-4">
+        <PlanLogToggle value={viewMode} onChange={setViewMode} />
       </div>
 
-      <div className="mt-3 flex flex-col gap-3.5">
+      <div className="flex flex-col gap-3">
         {MEAL_TYPES.map((meal) => (
-          <MealSection
+          <MealPlanSection
             key={meal}
             meal={meal}
-            items={dayPlan[meal] ?? []}
-            onAdd={() => navigate(`/add?date=${date}&meal=${meal}`)}
-            onRemove={(itemId) => removeItem(date, meal, itemId)}
+            mode={viewMode}
+            items={itemsForMode(getMealSlot(dayPlan, meal), viewMode)}
+            onAdd={() => navigate(`/add?date=${date}&meal=${meal}&mode=${viewMode}`)}
+            onRemove={(itemId) => removeItem(date, meal, itemId, viewMode)}
+            onLog={(itemId) => logItem(meal, itemId)}
           />
         ))}
       </div>
 
-      {hasAnyFood && (
+      {hasVisibleFood && (
         <div className="mt-4 pb-6">
-          <TipBanner mascot="mascot-avocado">
-            Great choice!
-            <br />
-            Keep eating healthy! 💚
+          <TipBanner large mascot="mascot-avocado">
+            {viewMode === 'planned' ? (
+              <>
+                Looking good!
+                <br />
+                Mark items as eaten once you&apos;re done. 💚
+              </>
+            ) : (
+              <>
+                Great choice!
+                <br />
+                Keep eating healthy! 💚
+              </>
+            )}
           </TipBanner>
         </div>
       )}
     </Screen>
-  )
-}
-
-function MealSection({
-  meal,
-  items,
-  onAdd,
-  onRemove,
-}: {
-  meal: MealType
-  items: MealItem[]
-  onAdd: () => void
-  onRemove: (itemId: string) => void
-}) {
-  return (
-    <section className="rounded-card bg-cream-dark p-3 shadow-card">
-      <div className="flex items-center justify-between px-1 pb-2">
-        <h2 className="flex items-center gap-2 text-[15px] font-extrabold text-ink">
-          <span className="text-base leading-none">{MEAL_META[meal].icon}</span>
-          {MEAL_LABELS[meal]}
-        </h2>
-        <InlineAddButton onClick={onAdd} />
-      </div>
-
-      {items.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          {items.map((item) => (
-            <FoodRow key={item.id} foodId={item.foodId} onRemove={() => onRemove(item.id)} />
-          ))}
-        </div>
-      ) : (
-        <p className="rounded-2xl bg-paper px-3 py-3.5 text-center text-[13px] font-semibold text-muted">
-          Nothing added yet
-        </p>
-      )}
-    </section>
   )
 }

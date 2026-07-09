@@ -2,11 +2,20 @@ import { useMemo, useState } from 'react'
 import { CalendarDays, Plus, Search } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Screen, SubHeader } from '../components/Screen'
-import { FoodTile } from '../components/FoodTile'
+import { FoodIcon } from '../components/FoodIcon'
+import { FoodIconPickerSheet } from '../components/FoodIconPickerSheet'
+import { PlanLogToggle } from '../components/PlanLogToggle'
 import { showToast } from '../components/toast'
 import { useMealActions } from '../state/useAppData'
-import { FOODS } from '../data/foods'
-import { MEAL_TYPES, MEAL_LABELS, type MealType } from '../types'
+import { FOODS, getFood } from '../data/foods'
+import {
+  MEAL_TYPES,
+  MEAL_LABELS,
+  MEAL_MODE_LABELS,
+  type MealType,
+  type FoodIconId,
+  type MealMode,
+} from '../types'
 import { MEAL_META } from '../components/meals'
 import { formatFullDate, todayISO } from '../lib/dates'
 
@@ -14,9 +23,17 @@ function isMealType(v: string | null): v is MealType {
   return MEAL_TYPES.includes(v as MealType)
 }
 
+function isMealMode(v: string | null): v is MealMode {
+  return v === 'planned' || v === 'logged'
+}
+
+type PendingAdd =
+  | { kind: 'catalog'; foodId: string; foodName: string; iconId: FoodIconId }
+  | { kind: 'custom' }
+
 /**
- * Food picker backing every "+ Add food" action. Adds to the meal/date it
- * was opened for; both are adjustable here (the FAB opens it meal-less).
+ * Food picker backing every "+ Add food" action. Users pick planning vs logging
+ * first; catalog picks open the icon sheet before saving.
  */
 export function AddFood() {
   const navigate = useNavigate()
@@ -25,22 +42,46 @@ export function AddFood() {
   const [meal, setMeal] = useState<MealType>(() =>
     isMealType(params.get('meal')) ? (params.get('meal') as MealType) : 'breakfast',
   )
+  const [mode, setMode] = useState<MealMode>(() =>
+    isMealMode(params.get('mode')) ? (params.get('mode') as MealMode) : 'planned',
+  )
   const [query, setQuery] = useState('')
-  const { addFood } = useMealActions()
+  const [pending, setPending] = useState<PendingAdd | null>(null)
+  const [customName, setCustomName] = useState('')
+  const { addFood, addCustomFood } = useMealActions()
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     const list = q ? FOODS.filter((f) => f.name.toLowerCase().includes(q)) : FOODS
-    // Suggested-for-this-meal first, then everything else.
     return [...list].sort(
       (a, b) => Number(b.usualMeal === meal) - Number(a.usualMeal === meal),
     )
   }, [query, meal])
 
-  const add = (foodId: string, foodName: string) => {
-    addFood(date, meal, foodId)
-    showToast(`${foodName} added to ${MEAL_LABELS[meal]}`)
+  const confirmAdd = (iconId: FoodIconId, name?: string) => {
+    if (!pending) return
+    const modeLabel = MEAL_MODE_LABELS[mode].toLowerCase()
+    if (pending.kind === 'custom') {
+      if (!name) return
+      addCustomFood(date, meal, name, iconId, mode)
+      showToast(`${name} added to ${MEAL_LABELS[meal]} (${modeLabel})`)
+    } else {
+      addFood(date, meal, pending.foodId, mode, iconId)
+      showToast(`${pending.foodName} added to ${MEAL_LABELS[meal]} (${modeLabel})`)
+    }
+    setPending(null)
+    setCustomName('')
     navigate(-1)
+  }
+
+  const openCatalog = (foodId: string) => {
+    const food = getFood(foodId)
+    setPending({ kind: 'catalog', foodId, foodName: food.name, iconId: food.iconId })
+  }
+
+  const openCustom = () => {
+    setCustomName('')
+    setPending({ kind: 'custom' })
   }
 
   return (
@@ -49,11 +90,18 @@ export function AddFood() {
 
       <div className="flex items-center justify-center gap-1.5 pb-3">
         <CalendarDays size={15} className="text-brand" />
-        <span className="text-[13.5px] font-bold text-ink-soft">{formatFullDate(date)}</span>
+        <span className="text-[13.5px] font-bold text-brand">{formatFullDate(date)}</span>
       </div>
 
-      {/* Meal selector */}
-      <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+      <PlanLogToggle value={mode} onChange={setMode} />
+
+      <p className="mt-3 text-center text-[13px] font-semibold text-muted">
+        {mode === 'planned'
+          ? 'Adding to your plan for later'
+          : 'Logging what you already ate'}
+      </p>
+
+      <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1">
         {MEAL_TYPES.map((m) => (
           <button
             key={m}
@@ -70,7 +118,6 @@ export function AddFood() {
         ))}
       </div>
 
-      {/* Search */}
       <label className="mt-3 flex h-12 items-center gap-3 rounded-field border border-line bg-paper px-4 shadow-card focus-within:border-brand">
         <Search size={18} className="shrink-0 text-muted" />
         <input
@@ -82,15 +129,23 @@ export function AddFood() {
         />
       </label>
 
-      {/* Results */}
+      <button
+        type="button"
+        onClick={openCustom}
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-brand/40 bg-brand-tint/40 px-4 py-3 text-sm font-extrabold text-brand active:bg-brand-tint"
+      >
+        <Plus size={16} strokeWidth={2.8} />
+        Add custom food
+      </button>
+
       <div className="mt-3 flex flex-col gap-2 pb-6">
         {results.map((food) => (
           <button
             key={food.id}
-            onClick={() => add(food.id, food.name)}
+            onClick={() => openCatalog(food.id)}
             className="flex items-center gap-3 rounded-2xl bg-paper px-3 py-2.5 text-left shadow-card active:bg-cream-dark"
           >
-            <FoodTile foodId={food.id} className="h-11 w-11" emojiClassName="text-2xl" />
+            <FoodIcon id={food.iconId} className="h-12 w-12 shrink-0 object-contain" />
             <span className="flex-1">
               <span className="block text-[15px] font-bold text-ink">{food.name}</span>
               {food.usualMeal === meal && (
@@ -108,6 +163,32 @@ export function AddFood() {
           </p>
         )}
       </div>
+
+      {pending?.kind === 'catalog' && (
+        <FoodIconPickerSheet
+          open
+          title={`Icon for ${pending.foodName}`}
+          initialIconId={pending.iconId}
+          confirmLabel="Add food"
+          onConfirm={confirmAdd}
+          onClose={() => setPending(null)}
+        />
+      )}
+
+      {pending?.kind === 'custom' && (
+        <FoodIconPickerSheet
+          open
+          title="Add custom food"
+          customName={customName}
+          onCustomNameChange={setCustomName}
+          confirmLabel="Add food"
+          onConfirm={confirmAdd}
+          onClose={() => {
+            setPending(null)
+            setCustomName('')
+          }}
+        />
+      )}
     </Screen>
   )
 }

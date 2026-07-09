@@ -5,14 +5,27 @@ import { Illustration, type IllustrationName } from './Illustration'
 export function TipBanner({
   mascot,
   children,
+  large = false,
 }: {
   mascot: IllustrationName
   children: ReactNode
+  large?: boolean
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-card bg-brand-tint px-4 py-3">
-      <Illustration name={mascot} className="h-11 w-11 shrink-0 object-contain" />
-      <p className="text-sm leading-snug font-bold text-ink">{children}</p>
+    <div
+      className={`flex items-center rounded-card bg-brand-tint ${
+        large ? 'gap-4 px-5 py-[1.125rem]' : 'gap-3 px-4 py-3'
+      }`}
+    >
+      <Illustration
+        name={mascot}
+        className={`shrink-0 object-contain ${large ? 'h-16 w-16' : 'h-11 w-11'}`}
+      />
+      <p
+        className={`leading-snug font-bold text-ink ${large ? 'text-[15px]' : 'text-sm'}`}
+      >
+        {children}
+      </p>
     </div>
   )
 }

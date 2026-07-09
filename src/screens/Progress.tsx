@@ -1,6 +1,7 @@
 import { Screen } from '../components/Screen'
 import { TipBanner } from '../components/TipBanner'
 import { usePlans } from '../state/useAppData'
+import { getMealSlot, itemsForMode } from '../lib/mealPlans'
 import { MEAL_TYPES } from '../types'
 import { todayISO, weekStart, weekDates } from '../lib/dates'
 
@@ -11,7 +12,10 @@ export function Progress() {
 
   const loggedMeals = weekDays.reduce((total, date) => {
     const day = plans[date] ?? {}
-    return total + MEAL_TYPES.filter((meal) => (day[meal] ?? []).length > 0).length
+    return (
+      total +
+      MEAL_TYPES.filter((meal) => itemsForMode(getMealSlot(day, meal), 'logged').length > 0).length
+    )
   }, 0)
 
   const totalSlots = weekDays.length * MEAL_TYPES.length

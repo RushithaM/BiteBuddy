@@ -1,4 +1,4 @@
-import type { MealType, PlanByDate, User } from '../../types'
+import type { MealType, PlanByDate, User, FoodIconId, MealMode } from '../../types'
 
 /**
  * Storage abstraction the screens talk to. The app currently ships with a
@@ -12,8 +12,22 @@ export interface DataService {
   signOut(): void
 
   getPlans(): PlanByDate
-  addFood(date: string, meal: MealType, foodId: string): void
-  removeItem(date: string, meal: MealType, itemId: string): void
+  addFood(
+    date: string,
+    meal: MealType,
+    foodId: string,
+    mode: MealMode,
+    iconId?: FoodIconId,
+  ): void
+  addCustomFood(
+    date: string,
+    meal: MealType,
+    name: string,
+    iconId: FoodIconId,
+    mode: MealMode,
+  ): void
+  removeItem(date: string, meal: MealType, itemId: string, mode: MealMode): void
+  logPlannedItem(date: string, meal: MealType, itemId: string): void
 
   /** Notifies on any data change; returns an unsubscribe function. */
   subscribe(listener: () => void): () => void

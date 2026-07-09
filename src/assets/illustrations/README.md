@@ -27,5 +27,6 @@ them up automatically; until a file exists it renders an emoji placeholder.
 Regenerate all four with `node scripts/compose-meal-scenes.mjs`. Dish cutouts
 live in `src/assets/source-art/dish-*.png`; scene frames are `scene-*.png`.
 
-Food images go into `src/assets/foods/<food-id>.png` (ids in
-`src/data/foods.ts`); the emoji tiles are used as fallback.
+Food icons for Day Plan rows and the Add Food picker live in
+`src/assets/food-icons/` (see that folder's README). Catalog defaults are set
+in `src/data/foods.ts` via each food's `iconId`.

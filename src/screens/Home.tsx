@@ -7,6 +7,7 @@ import { useUser, usePlans } from '../state/useAppData'
 import { MEAL_TYPES, MEAL_LABELS, type MealType } from '../types'
 import { MEAL_META } from '../components/meals'
 import { getFood } from '../data/foods'
+import { getMealSlot, itemsForMode } from '../lib/mealPlans'
 import { todayISO, greetingForNow } from '../lib/dates'
 
 export function Home() {
@@ -37,7 +38,7 @@ export function Home() {
           <HomeMealCard
             key={meal}
             meal={meal}
-            foodIds={(todayPlan[meal] ?? []).map((i) => i.foodId)}
+            foodIds={itemsForMode(getMealSlot(todayPlan, meal), 'logged').map((i) => i.foodId)}
           />
         ))}
         <TodayDayEnd />
