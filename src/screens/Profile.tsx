@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Bell,
   ChevronRight,
@@ -11,7 +12,9 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { Screen } from '../components/Screen'
 import { Illustration } from '../components/Illustration'
+import { ProfileEditSheet } from '../components/ProfileEditSheet'
 import { showToast } from '../components/toast'
+import { DEFAULT_AVATAR } from '../data/avatars'
 import { useUser } from '../state/useAppData'
 import { dataService } from '../services/data'
 
@@ -26,6 +29,7 @@ const MENU = [
 export function Profile() {
   const user = useUser()
   const navigate = useNavigate()
+  const [editOpen, setEditOpen] = useState(false)
 
   const logOut = () => {
     dataService.signOut()
@@ -38,11 +42,14 @@ export function Profile() {
 
       {/* Identity card */}
       <button
-        onClick={() => showToast('Profile editing is coming soon')}
+        onClick={() => setEditOpen(true)}
         className="mt-4 flex w-full items-center gap-3.5 rounded-card bg-cream-dark p-3.5 text-left shadow-card active:bg-line-soft"
       >
         <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-tint">
-          <Illustration name="avatar-user" className="h-full w-full object-cover" />
+          <Illustration
+            name={user?.avatarId ?? DEFAULT_AVATAR}
+            className="h-full w-full object-cover"
+          />
         </span>
         <span className="flex-1">
           <span className="block text-[17px] font-extrabold text-ink">
@@ -80,6 +87,10 @@ export function Profile() {
           <LogOut size={18} className="text-danger/60" />
         </button>
       </div>
+
+      {user && (
+        <ProfileEditSheet open={editOpen} user={user} onClose={() => setEditOpen(false)} />
+      )}
     </Screen>
   )
 }

@@ -9,6 +9,7 @@ import { Illustration } from '../components/Illustration'
 import { GoogleG } from '../components/GoogleG'
 import { dataService } from '../services/data'
 import { showToast } from '../components/toast'
+import { DEFAULT_AVATAR } from '../data/avatars'
 
 /** Mirrors the Login screen's layout for account creation (mock auth). */
 export function Signup() {
@@ -23,7 +24,7 @@ export function Signup() {
       showToast('Fill in all the fields to sign up')
       return
     }
-    dataService.signIn({ name: name.trim(), email: email.trim() })
+    dataService.signIn({ name: name.trim(), email: email.trim(), avatarId: DEFAULT_AVATAR })
     navigate('/', { replace: true })
   }
 
@@ -74,7 +75,11 @@ export function Signup() {
         <SecondaryButton
           type="button"
           onClick={() => {
-            dataService.signIn({ name: 'Jyothish Kumar', email: 'jyothish@example.com' })
+            dataService.signIn({
+              name: 'Jyothish Kumar',
+              email: 'jyothish@example.com',
+              avatarId: DEFAULT_AVATAR,
+            })
             navigate('/', { replace: true })
           }}
         >

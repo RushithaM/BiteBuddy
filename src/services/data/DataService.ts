@@ -8,6 +8,7 @@ import type { MealType, PlanByDate, User } from '../../types'
 export interface DataService {
   getUser(): User | null
   signIn(user: User): void
+  updateUser(patch: Partial<User>): void
   signOut(): void
 
   getPlans(): PlanByDate

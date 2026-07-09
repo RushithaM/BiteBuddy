@@ -1,5 +1,6 @@
 import type { MealItem, MealType, PlanByDate, User } from '../../types'
 import type { DataService } from './DataService'
+import { DEFAULT_AVATAR } from '../../data/avatars'
 import { buildSeedPlans } from './seed'
 
 const PLANS_KEY = 'nutri.plans.v1'
@@ -31,7 +32,10 @@ export class LocalDataService implements DataService {
       this.plans = buildSeedPlans()
       save(PLANS_KEY, this.plans)
     }
-    this.user = load<User>(USER_KEY)
+    const storedUser = load<User>(USER_KEY)
+    this.user = storedUser
+      ? { ...storedUser, avatarId: storedUser.avatarId ?? DEFAULT_AVATAR }
+      : null
   }
 
   private emit() {
@@ -44,8 +48,15 @@ export class LocalDataService implements DataService {
   }
 
   signIn(user: User) {
-    this.user = user
-    save(USER_KEY, user)
+    this.user = { ...user, avatarId: user.avatarId ?? DEFAULT_AVATAR }
+    save(USER_KEY, this.user)
+    this.listeners.forEach((l) => l())
+  }
+
+  updateUser(patch: Partial<User>) {
+    if (!this.user) return
+    this.user = { ...this.user, ...patch }
+    save(USER_KEY, this.user)
     this.listeners.forEach((l) => l())
   }
 

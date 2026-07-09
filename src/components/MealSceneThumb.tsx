@@ -1,40 +1,20 @@
 import type { MealType } from '../types'
 import { MEAL_META } from './meals'
-import { getFood } from '../data/foods'
-import { FoodTile, getFoodImageUrl } from './FoodTile'
+import { FoodTile } from './FoodTile'
 import { getIllustrationUrl } from './Illustration'
 
 /**
- * Home meal-card thumbnail. The time-of-day scene (meal-<type>.png) is the
- * BACKGROUND only; whatever dish the user selected is layered on top at
- * runtime — as its illustration when one exists in src/assets/foods/,
- * otherwise as its emoji. Falls back to an emoji scene without the art.
+ * Static time-of-day illustration for Home meal cards (meal-<type>.png).
+ * Logged food names are shown on the right of the card, not on this thumb.
  */
-export function MealSceneThumb({ meal, foodId }: { meal: MealType; foodId?: string }) {
+export function MealSceneThumb({ meal }: { meal: MealType }) {
   const meta = MEAL_META[meal]
   const sceneUrl = getIllustrationUrl(`meal-${meal}`)
 
   if (sceneUrl) {
-    const dishUrl = foodId ? getFoodImageUrl(foodId) : undefined
     return (
-      <span className="relative block h-28 w-28 shrink-0" aria-hidden>
-        <img src={sceneUrl} alt="" className="absolute inset-0 h-full w-full object-contain" />
-        {foodId &&
-          (dishUrl ? (
-            <img
-              src={dishUrl}
-              alt=""
-              className="absolute"
-              style={{ width: '88%', left: '50%', top: '63%', transform: 'translate(-50%, -50%)' }}
-            />
-          ) : (
-            <span
-              className="absolute text-[44px] leading-none drop-shadow-sm"
-              style={{ left: '50%', top: '63%', transform: 'translate(-50%, -50%)' }}
-            >
-              {getFood(foodId).emoji}
-            </span>
-          ))}
+      <span className="block h-[5.25rem] w-[6.75rem] shrink-0" aria-hidden>
+        <img src={sceneUrl} alt="" className="h-full w-full object-contain object-left" />
       </span>
     )
   }
@@ -42,15 +22,12 @@ export function MealSceneThumb({ meal, foodId }: { meal: MealType; foodId?: stri
   // emoji placeholder scene (no artwork present)
   return (
     <span
-      className="relative flex h-17 w-17 shrink-0 items-center justify-center rounded-2xl"
+      className="relative flex h-[5.25rem] w-[6.75rem] shrink-0 items-center justify-center"
       style={{ backgroundColor: meta.sceneTint }}
+      aria-hidden
     >
-      <span className="absolute top-1 left-1.5 text-sm leading-none" aria-hidden>
-        {meta.icon}
-      </span>
-      <span className="mt-1 text-[34px] leading-none" aria-hidden>
-        {foodId ? getFood(foodId).emoji : '🍽️'}
-      </span>
+      <span className="absolute top-2 left-2.5 text-base leading-none">{meta.icon}</span>
+      <span className="text-[40px] leading-none opacity-60">🍽️</span>
     </span>
   )
 }

@@ -9,6 +9,7 @@ import { Illustration } from '../components/Illustration'
 import { GoogleG } from '../components/GoogleG'
 import { dataService } from '../services/data'
 import { showToast } from '../components/toast'
+import { DEFAULT_AVATAR } from '../data/avatars'
 
 /** Mock auth: any credentials sign in the demo user. */
 export function Login() {
@@ -17,7 +18,7 @@ export function Login() {
   const [password, setPassword] = useState('')
 
   const signIn = (userEmail: string) => {
-    dataService.signIn({ name: 'Jyothish Kumar', email: userEmail })
+    dataService.signIn({ name: 'Jyothish Kumar', email: userEmail, avatarId: DEFAULT_AVATAR })
     navigate('/', { replace: true })
   }
 

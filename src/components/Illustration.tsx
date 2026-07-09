@@ -30,6 +30,13 @@ export type IllustrationName =
   | 'mascot-avocado'
   | 'mascot-broccoli'
   | 'avatar-user'
+  | 'avatar-avocado'
+  | 'avatar-tomato'
+  | 'avatar-carrot'
+  | 'avatar-blueberry'
+  | 'avatar-broccoli'
+  | 'avatar-banana'
+  | 'today-day-end'
 
 const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: string }> = {
   'logo-heart': {
@@ -61,6 +68,40 @@ const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: str
   'avatar-user': {
     label: 'User avatar',
     node: <span className="text-4xl leading-none">🥑</span>,
+  },
+  'avatar-avocado': {
+    label: 'Avocado avatar',
+    node: <span className="text-4xl leading-none">🥑</span>,
+  },
+  'avatar-tomato': {
+    label: 'Tomato avatar',
+    node: <span className="text-4xl leading-none">🍅</span>,
+  },
+  'avatar-carrot': {
+    label: 'Carrot avatar',
+    node: <span className="text-4xl leading-none">🥕</span>,
+  },
+  'avatar-blueberry': {
+    label: 'Blueberry avatar',
+    node: <span className="text-4xl leading-none">🫐</span>,
+  },
+  'avatar-broccoli': {
+    label: 'Broccoli avatar',
+    node: <span className="text-4xl leading-none">🥦</span>,
+  },
+  'avatar-banana': {
+    label: 'Banana avatar',
+    node: <span className="text-4xl leading-none">🍌</span>,
+  },
+  'today-day-end': {
+    label: 'Avocado relaxing in a hammock at day\'s end',
+    node: (
+      <span className="flex items-end justify-center gap-2 leading-none">
+        <span className="text-5xl">🌳</span>
+        <span className="text-7xl">🥑</span>
+        <span className="text-5xl">🌳</span>
+      </span>
+    ),
   },
 }
 

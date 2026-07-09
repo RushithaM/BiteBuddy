@@ -28,7 +28,16 @@ export interface MealItem {
 /** ISO date (yyyy-mm-dd) → meal type → items */
 export type PlanByDate = Record<string, Partial<Record<MealType, MealItem[]>>>
 
+export type AvatarId =
+  | 'avatar-avocado'
+  | 'avatar-tomato'
+  | 'avatar-carrot'
+  | 'avatar-blueberry'
+  | 'avatar-broccoli'
+  | 'avatar-banana'
+
 export interface User {
   name: string
   email: string
+  avatarId: AvatarId
 }

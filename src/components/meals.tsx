@@ -22,7 +22,7 @@ export const MEAL_META: Record<
     emptyPlannerTitle: 'No breakfast added yet',
     emptyPlannerHint: 'Tap + Add to log your breakfast',
     sceneTint: '#fdf0cf',
-    cardBg: '#f8f2dc',
+    cardBg: '#ffffff',
   },
   lunch: {
     icon: '🌤️',
@@ -30,7 +30,7 @@ export const MEAL_META: Record<
     emptyPlannerTitle: 'No lunch added yet',
     emptyPlannerHint: 'Tap + Add to log your lunch',
     sceneTint: '#eaf2fa',
-    cardBg: '#f5f2e4',
+    cardBg: '#ffffff',
   },
   snack: {
     icon: '🌞',
@@ -38,7 +38,7 @@ export const MEAL_META: Record<
     emptyPlannerTitle: 'No snack added yet',
     emptyPlannerHint: 'Tap + Add to log your snack',
     sceneTint: '#fde7cc',
-    cardBg: '#f3e3c2',
+    cardBg: '#ffffff',
   },
   dinner: {
     icon: '🌙',
@@ -46,6 +46,6 @@ export const MEAL_META: Record<
     emptyPlannerTitle: 'No dinner added yet',
     emptyPlannerHint: 'Tap + Add to log your dinner',
     sceneTint: '#e3e9f5',
-    cardBg: '#e4e7ef',
+    cardBg: '#ffffff',
   },
 }
