@@ -1,4 +1,4 @@
-import type { Food, FoodIconId } from '../types'
+import type { Food, FoodIconId, MealType } from '../types'
 
 /**
  * Mock food catalog. Each item maps to one of the predefined food icons in
@@ -77,4 +77,30 @@ export function getFoodDisplayName(foodId: string, customName?: string) {
 
 export function resolveItemIcon(foodId: string, iconId?: FoodIconId): FoodIconId {
   return iconId ?? getFood(foodId).iconId
+}
+
+export interface CatalogFood {
+  id: string
+  name: string
+  emoji: string
+  tint: string
+  iconId: string
+  usualMeal: string
+}
+
+/** Replace the hardcoded catalog with server rows (remote mode hydration). */
+export function setCatalog(rows: CatalogFood[]) {
+  FOODS.length = 0
+  for (const r of rows) {
+    FOODS.push({
+      id: r.id,
+      name: r.name,
+      emoji: r.emoji,
+      tint: r.tint,
+      iconId: r.iconId as FoodIconId,
+      usualMeal: r.usualMeal as MealType,
+    })
+  }
+  byId.clear()
+  for (const f of FOODS) byId.set(f.id, f)
 }

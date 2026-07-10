@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String     @id @default(cuid())
+  email                 String     @unique
+  passwordHash          String
+  name                  String
+  avatarId              String     @default("avatar-avocado")
+  setupComplete         Boolean    @default(false)
+  goals                 String[]   @default([])
+  foodPreference        String?
+  mealReminders         Json?
+  hydrationReminders    Json?
+  motivationalReminders Json?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  mealItems             MealItem[]
+  mealMetas             MealMeta[]
+}
+
+model Food {
+  id          String @id
+  name        String
+  emoji       String
+  tint        String
+  iconId      String
+  usualMeal   String
+  calories    Int
+  carbs       Int
+  protein     Int
+  fats        Int
+  fiber       Int
+  portionUnit String
+}
+
+model MealItem {
+  dbId       Int       @id @default(autoincrement())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId     String
+  date       String
+  mealType   String
+  mode       String
+  foodId     String
+  customName String?
+  iconId     String
+  quantity   String?
+  note       String?
+  loggedAt   DateTime?
+
+  @@unique([userId, itemId, mode])
+  @@index([userId, date])
+}
+
+model MealMeta {
+  id       Int     @id @default(autoincrement())
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date     String
+  mealType String
+  mood     Int?
+  mealNote String?
+
+  @@unique([userId, date, mealType])
+}

@@ -2,37 +2,35 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
 import { Screen, SubHeader } from '../components/Screen'
-import { PrimaryButton, SecondaryButton } from '../components/Buttons'
+import { PrimaryButton } from '../components/Buttons'
 import { TextField, PasswordField } from '../components/TextField'
 import { Illustration } from '../components/Illustration'
-import { GoogleG } from '../components/GoogleG'
 import { dataService } from '../services/data'
 import { showToast } from '../components/toast'
-import { DEFAULT_AVATAR } from '../data/avatars'
 
-/** Mock auth: any credentials sign in the demo user. */
 export function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
-  const afterAuth = () => {
-    const current = dataService.getUser()
-    navigate(current?.setupComplete ? '/' : '/setup', { replace: true })
-  }
-
-  const signIn = (userEmail: string) => {
-    dataService.signIn({ name: 'Jyothish Kumar', email: userEmail, avatarId: DEFAULT_AVATAR })
-    afterAuth()
-  }
-
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password) {
-      showToast('Enter your email and password')
+      setError('Enter your email and password')
       return
     }
-    signIn(email.trim())
+    setBusy(true)
+    setError(null)
+    try {
+      const user = await dataService.signIn(email.trim(), password)
+      navigate(user.setupComplete ? '/' : '/setup', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not log in')
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -64,6 +62,12 @@ export function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
+        {error && (
+          <p role="alert" className="text-center text-sm font-bold text-red-600">
+            {error}
+          </p>
+        )}
+
         <button
           type="button"
           onClick={() => showToast('Password reset is not available in the demo')}
@@ -72,18 +76,9 @@ export function Login() {
           Forgot password?
         </button>
 
-        <PrimaryButton type="submit">Login</PrimaryButton>
-
-        <div className="my-1 flex items-center gap-3">
-          <span className="h-px flex-1 bg-line" />
-          <span className="text-sm font-semibold text-muted">or</span>
-          <span className="h-px flex-1 bg-line" />
-        </div>
-
-        <SecondaryButton type="button" onClick={() => signIn('jyothish@example.com')}>
-          <GoogleG className="h-5 w-5" />
-          Continue with Google
-        </SecondaryButton>
+        <PrimaryButton type="submit" disabled={busy}>
+          Login
+        </PrimaryButton>
       </form>
 
       <p className="mt-auto pt-8 pb-6 text-center text-[15px] font-semibold text-ink-soft">

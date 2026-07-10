@@ -6,8 +6,11 @@ import type { MealType, PlanByDate, User, FoodIconId, MealMode, MealMood } from 
  * implementation can be swapped in later without touching the screens.
  */
 export interface DataService {
+  /** Resolves when any persisted session/data is loaded. Render app after. */
+  init(): Promise<void>
   getUser(): User | null
-  signIn(user: User): void
+  signIn(email: string, password: string): Promise<User>
+  signUp(name: string, email: string, password: string): Promise<User>
   updateUser(patch: Partial<User>): void
   signOut(): void
 

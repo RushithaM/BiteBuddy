@@ -6,6 +6,7 @@ import { getFood } from '../../data/foods'
 import { EMPTY_MEAL_SLOT } from '../../lib/mealPlans'
 import { todayISO } from '../../lib/dates'
 import { buildSeedPlans } from './seed'
+import { addItemOp, logPlannedOp, makeItem, removeItemOp, updateMetaOp } from '../../lib/planOps'
 
 const PLANS_KEY = 'nutri.plans.v2'
 const USER_KEY = 'nutri.user.v1'
@@ -133,27 +134,6 @@ function loadPlans(): PlanByDate {
   return seeded
 }
 
-function slotFor(plans: PlanByDate, date: string, meal: MealType): MealSlot {
-  return plans[date]?.[meal] ?? EMPTY_MEAL_SLOT
-}
-
-function newItem(
-  foodId: string,
-  iconId?: FoodIconId,
-  customName?: string,
-  opts?: { quantity?: string; note?: string },
-): MealItem {
-  const food = getFood(foodId)
-  return {
-    id: `m-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    foodId,
-    iconId: iconId ?? food.iconId,
-    ...(customName ? { customName } : {}),
-    ...(opts?.quantity ? { quantity: opts.quantity } : {}),
-    ...(opts?.note ? { note: opts.note } : {}),
-  }
-}
-
 export class LocalDataService implements DataService {
   private plans: PlanByDate
   private user: User | null
@@ -170,11 +150,8 @@ export class LocalDataService implements DataService {
     this.listeners.forEach((l) => l())
   }
 
-  private patchSlot(date: string, meal: MealType, slot: MealSlot) {
-    this.plans = {
-      ...this.plans,
-      [date]: { ...this.plans[date], [meal]: slot },
-    }
+  private setPlans(next: PlanByDate) {
+    this.plans = next
     this.emit()
   }
 
@@ -182,19 +159,30 @@ export class LocalDataService implements DataService {
     return this.user
   }
 
-  signIn(user: User) {
+  async init() {}
+
+  async signIn(email: string, _password: string) {
+    return this.establishSession({ name: 'Jyothish Kumar', email, avatarId: DEFAULT_AVATAR })
+  }
+
+  async signUp(name: string, email: string, _password: string) {
+    return this.establishSession({ name, email, avatarId: DEFAULT_AVATAR })
+  }
+
+  private establishSession(seed: User): User {
     const saved = load<User>(PROFILE_KEY)
-    const merged = saved?.email === user.email ? { ...saved, ...user } : user
+    const merged = saved?.email === seed.email ? { ...saved, ...seed } : seed
     this.user = normalizeUser({
       ...merged,
-      name: user.name || merged.name,
-      email: user.email,
-      avatarId: user.avatarId ?? merged.avatarId ?? DEFAULT_AVATAR,
+      name: seed.name || merged.name,
+      email: seed.email,
+      avatarId: seed.avatarId ?? merged.avatarId ?? DEFAULT_AVATAR,
       setupComplete: merged.setupComplete ?? false,
     })
     save(USER_KEY, this.user)
     save(PROFILE_KEY, this.user)
     this.listeners.forEach((l) => l())
+    return this.user
   }
 
   updateUser(patch: Partial<User>) {
@@ -224,12 +212,7 @@ export class LocalDataService implements DataService {
     iconId?: FoodIconId,
     opts?: { quantity?: string; note?: string },
   ) {
-    const slot = slotFor(this.plans, date, meal)
-    const key = mode === 'planned' ? 'planned' : 'logged'
-    this.patchSlot(date, meal, {
-      ...slot,
-      [key]: [...slot[key], newItem(foodId, iconId, undefined, opts)],
-    })
+    this.setPlans(addItemOp(this.plans, date, meal, mode, makeItem(foodId, iconId, undefined, opts)))
   }
 
   addCustomFood(
@@ -240,43 +223,16 @@ export class LocalDataService implements DataService {
     mode: MealMode,
     opts?: { quantity?: string; note?: string },
   ) {
-    const slot = slotFor(this.plans, date, meal)
-    const key = mode === 'planned' ? 'planned' : 'logged'
-    this.patchSlot(date, meal, {
-      ...slot,
-      [key]: [...slot[key], newItem('custom', iconId, name.trim(), opts)],
-    })
+    this.setPlans(addItemOp(this.plans, date, meal, mode, makeItem('custom', iconId, name.trim(), opts)))
   }
 
   removeItem(date: string, meal: MealType, itemId: string, mode: MealMode) {
-    const slot = slotFor(this.plans, date, meal)
-    if (mode === 'planned') {
-      this.patchSlot(date, meal, {
-        ...slot,
-        planned: slot.planned.filter((i) => i.id !== itemId),
-      })
-      return
-    }
-    // Removing from logging also reverts the planned item to pending.
-    this.patchSlot(date, meal, {
-      planned: slot.planned.map((i) =>
-        i.id === itemId ? { ...i, loggedAt: undefined } : i,
-      ),
-      logged: slot.logged.filter((i) => i.id !== itemId),
-    })
+    this.setPlans(removeItemOp(this.plans, date, meal, itemId, mode))
   }
 
   logPlannedItem(date: string, meal: MealType, itemId: string) {
-    const slot = slotFor(this.plans, date, meal)
-    const item = slot.planned.find((i) => i.id === itemId)
-    if (!item || item.loggedAt) return
-    const { loggedAt: _drop, ...loggedCopy } = item
-    this.patchSlot(date, meal, {
-      planned: slot.planned.map((i) =>
-        i.id === itemId ? { ...i, loggedAt: new Date().toISOString() } : i,
-      ),
-      logged: [...slot.logged, loggedCopy],
-    })
+    const next = logPlannedOp(this.plans, date, meal, itemId, new Date().toISOString())
+    if (next) this.setPlans(next)
   }
 
   updateMealMeta(
@@ -284,8 +240,7 @@ export class LocalDataService implements DataService {
     meal: MealType,
     patch: { mood?: MealMood; mealNote?: string },
   ) {
-    const slot = slotFor(this.plans, date, meal)
-    this.patchSlot(date, meal, { ...slot, ...patch })
+    this.setPlans(updateMetaOp(this.plans, date, meal, patch))
   }
 
   subscribe(listener: () => void) {
