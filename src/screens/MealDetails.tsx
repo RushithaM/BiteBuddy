@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { Leaf, Pencil, Trash2 } from 'lucide-react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Screen, SubHeader } from '../components/Screen'
 import { MealSceneHero } from '../components/MealSceneThumb'
 import { FoodIcon } from '../components/FoodIcon'
-import { showToast } from '../components/toast'
 import { getFoodDisplayName } from '../data/foods'
 import {
   aggregateMealNutrition,
@@ -110,14 +109,12 @@ export function MealDetails() {
         title={MEAL_LABELS[meal]}
         onBack={() => navigate(mode === 'planned' ? '/planner' : '/')}
         right={
-          <button
-            type="button"
-            aria-label="Meal options"
-            onClick={() => showToast('More options coming soon')}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-ink active:bg-cream-dark"
+          <span
+            aria-hidden
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-paper text-brand shadow-card"
           >
-            <MoreVertical size={22} strokeWidth={2.2} />
-          </button>
+            <Leaf size={20} strokeWidth={2.2} />
+          </span>
         }
       />
 

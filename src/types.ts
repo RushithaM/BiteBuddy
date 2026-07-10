@@ -72,12 +72,22 @@ export type MealMood = 1 | 2 | 3
 export type PlanByDate = Record<string, Partial<Record<MealType, MealSlot>>>
 
 export type AvatarId =
-  | 'avatar-avocado'
-  | 'avatar-tomato'
-  | 'avatar-carrot'
-  | 'avatar-blueberry'
+  | 'avatar-apple'
+  | 'avatar-orange'
+  | 'avatar-strawberry'
+  | 'avatar-watermelon'
+  | 'avatar-peach'
+  | 'avatar-grapes'
+  | 'avatar-corn'
   | 'avatar-broccoli'
+  | 'avatar-blueberry'
+  | 'avatar-lemon'
+  | 'avatar-carrot'
+  | 'avatar-avocado'
   | 'avatar-banana'
+  | 'avatar-mushroom'
+  | 'avatar-tomato'
+  | 'avatar-pineapple'
 
 export type GoalId =
   | 'track-meals'

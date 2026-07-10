@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { User } from 'lucide-react'
 import { PrimaryButton } from './Buttons'
-import { Illustration } from './Illustration'
+import { AvatarPickerTile } from './AvatarImage'
 import { TextField } from './TextField'
 import { AVATAR_OPTIONS, DEFAULT_AVATAR } from '../data/avatars'
 import { dataService } from '../services/data'
@@ -40,26 +40,16 @@ export function ProfileEditForm({ user, onSaved }: ProfileEditFormProps) {
       />
 
       <p className="mt-6 text-[15px] font-extrabold text-ink">Choose your avatar</p>
-      <div className="mt-3 grid grid-cols-3 gap-3">
-        {AVATAR_OPTIONS.map(({ id, label }) => {
-          const selected = id === avatarId
-          return (
-            <button
-              key={id}
-              type="button"
-              aria-label={label}
-              aria-pressed={selected}
-              onClick={() => setAvatarId(id)}
-              className={`flex aspect-square items-center justify-center overflow-hidden rounded-card p-1.5 transition-colors ${
-                selected
-                  ? 'bg-brand-tint ring-2 ring-brand ring-offset-2 ring-offset-cream'
-                  : 'bg-paper shadow-card active:bg-cream-dark'
-              }`}
-            >
-              <Illustration name={id} className="h-full w-full rounded-[0.65rem] object-cover" />
-            </button>
-          )
-        })}
+      <div className="mt-3 grid grid-cols-4 gap-2.5">
+        {AVATAR_OPTIONS.map(({ id, label }) => (
+          <AvatarPickerTile
+            key={id}
+            id={id}
+            label={label}
+            selected={id === avatarId}
+            onSelect={() => setAvatarId(id)}
+          />
+        ))}
       </div>
 
       <PrimaryButton type="button" onClick={save} className="mt-8">

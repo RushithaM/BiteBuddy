@@ -14,12 +14,25 @@ them up automatically; until a file exists it renders an emoji placeholder.
 | `mascot-avocado`   | Day Plan banner, Profile avatar                    |
 | `mascot-broccoli`  | Weekly Planner tip banner                          |
 | `avatar-user`      | Profile screen avatar (legacy)                     |
-| `avatar-avocado`   | Profile avatar option                              |
-| `avatar-tomato`    | Profile avatar option                              |
-| `avatar-carrot`    | Profile avatar option                              |
-| `avatar-blueberry` | Profile avatar option                              |
+| `avatar-apple`     | Profile avatar option (cropped from mascot sheet)  |
+| `avatar-orange`    | Profile avatar option                              |
+| `avatar-strawberry`| Profile avatar option                              |
+| `avatar-watermelon`| Profile avatar option                              |
+| `avatar-peach`     | Profile avatar option                              |
+| `avatar-grapes`    | Profile avatar option                              |
+| `avatar-corn`      | Profile avatar option                              |
 | `avatar-broccoli`  | Profile avatar option                              |
+| `avatar-blueberry` | Profile avatar option                              |
+| `avatar-lemon`     | Profile avatar option                              |
+| `avatar-carrot`    | Profile avatar option                              |
+| `avatar-avocado`   | Profile avatar option                              |
 | `avatar-banana`    | Profile avatar option                              |
+| `avatar-garlic`    | Profile avatar option                              |
+| `avatar-tomato`    | Profile avatar option                              |
+| `avatar-pineapple` | Profile avatar option                              |
+| `avatar-pepper`    | Profile avatar option                              |
+| `avatar-onion`     | Profile avatar option                              |
+| `avatar-cucumber`  | Profile avatar option                              |
 | `meal-breakfast`   | Home meal card — dosa on leaf, sun scene             |
 | `meal-lunch`       | Home meal card — rice plate, day-sky scene           |
 | `meal-snack`       | Home meal card — chai + cookie, sunset scene         |

@@ -1,5 +1,5 @@
-import type { ButtonHTMLAttributes } from 'react'
-import { Plus } from 'lucide-react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { ArrowRight, Plus } from 'lucide-react'
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
 
@@ -10,6 +10,30 @@ export function PrimaryButton({ className = '', ...props }: ButtonProps) {
       {...props}
       className={`h-13 w-full rounded-full bg-brand text-lg font-bold text-white shadow-card transition-colors active:bg-brand-dark ${className}`}
     />
+  )
+}
+
+/** Green pill with label + white circle arrow — "Add to Breakfast", etc. */
+export function AddToMealButton({
+  children,
+  className = '',
+  type = 'button',
+  ...props
+}: ButtonProps & { children: ReactNode }) {
+  return (
+    <button
+      type={type}
+      {...props}
+      className={`relative flex h-[3.25rem] w-full items-center justify-center rounded-full bg-brand px-14 text-lg font-bold text-white shadow-card transition-colors active:bg-brand-dark disabled:opacity-50 ${className}`}
+    >
+      <span>{children}</span>
+      <span
+        aria-hidden
+        className="absolute right-1.5 flex h-10 w-10 items-center justify-center rounded-full bg-paper text-brand"
+      >
+        <ArrowRight size={20} strokeWidth={2.4} />
+      </span>
+    </button>
   )
 }
 

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Screen } from '../components/Screen'
+import { AvatarImage } from '../components/AvatarImage'
 import { Illustration } from '../components/Illustration'
 import { showToast } from '../components/toast'
 import { DEFAULT_AVATAR } from '../data/avatars'
@@ -161,10 +162,10 @@ export function Profile() {
 
           <div className="mt-10 flex flex-col items-center text-center">
             <div className="relative">
-              <span className="flex h-[7.75rem] w-[7.75rem] items-center justify-center overflow-hidden rounded-full bg-brand-tint shadow-card ring-[5px] ring-paper">
-                <Illustration
-                  name={user?.avatarId ?? DEFAULT_AVATAR}
-                  className="h-full w-full object-cover"
+              <span className="flex h-[7.75rem] w-[7.75rem] items-center justify-center overflow-hidden rounded-full bg-cream p-1 shadow-card ring-[5px] ring-paper">
+                <AvatarImage
+                  id={user?.avatarId ?? DEFAULT_AVATAR}
+                  className="h-full w-full rounded-full object-cover object-center"
                 />
               </span>
               <button

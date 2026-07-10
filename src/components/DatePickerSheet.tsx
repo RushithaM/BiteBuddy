@@ -9,18 +9,30 @@ import {
   todayISO,
   toISODate,
 } from '../lib/dates'
+import {
+  dateCellNumberClass,
+  getDateCellState,
+} from '../lib/dateCellStyle'
+import type { PlanByDate } from '../types'
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 interface DatePickerSheetProps {
   open: boolean
   selected: string
+  plans: PlanByDate
   onSelect: (date: string) => void
   onClose: () => void
 }
 
-/** Bottom sheet calendar for picking today or future dates. */
-export function DatePickerSheet({ open, selected, onSelect, onClose }: DatePickerSheetProps) {
+/** Bottom sheet calendar for picking a date. */
+export function DatePickerSheet({
+  open,
+  selected,
+  plans,
+  onSelect,
+  onClose,
+}: DatePickerSheetProps) {
   const [viewMonth, setViewMonth] = useState(() => monthStart(selected))
   const today = todayISO()
 
@@ -64,7 +76,7 @@ export function DatePickerSheet({ open, selected, onSelect, onClose }: DatePicke
           <button
             aria-label="Previous month"
             onClick={() => setViewMonth((m) => addMonths(m, -1))}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ink active:bg-cream-dark"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-brand active:bg-cream-dark"
           >
             <ChevronLeft size={22} />
           </button>
@@ -72,7 +84,7 @@ export function DatePickerSheet({ open, selected, onSelect, onClose }: DatePicke
           <button
             aria-label="Next month"
             onClick={() => setViewMonth((m) => addMonths(m, 1))}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ink active:bg-cream-dark"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-brand active:bg-cream-dark"
           >
             <ChevronRight size={22} />
           </button>
@@ -87,24 +99,13 @@ export function DatePickerSheet({ open, selected, onSelect, onClose }: DatePicke
           {cells.map((date, i) => {
             if (!date) return <span key={`blank-${i}`} />
 
-            const isPast = date < today
-            const isSelected = date === selected
-            const isToday = date === today
+            const state = getDateCellState(plans, date, selected, today)
 
             return (
               <button
                 key={date}
-                disabled={isPast}
                 onClick={() => pickDate(date)}
-                className={`flex h-10 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-                  isSelected
-                    ? 'bg-brand text-white'
-                    : isToday
-                      ? 'bg-brand-tint text-brand-dark'
-                      : isPast
-                        ? 'text-line'
-                        : 'text-ink active:bg-cream-dark'
-                }`}
+                className={`mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm font-extrabold transition-colors active:opacity-80 ${dateCellNumberClass(state)}`}
               >
                 {fromISODate(date).getDate()}
               </button>
@@ -113,7 +114,7 @@ export function DatePickerSheet({ open, selected, onSelect, onClose }: DatePicke
         </div>
 
         <p className="mt-4 pb-4 text-center text-[12px] font-semibold text-muted">
-          Plan meals for today or upcoming days
+          Tap a date to view or plan meals
         </p>
       </div>
     </>

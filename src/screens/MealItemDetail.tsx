@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Dumbbell, Droplet, Heart, Leaf, Minus, Plus, Wheat } from 'lucide-react'
-import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Dumbbell, Droplet, Heart, Leaf, Minus, Plus, Wheat } from 'lucide-react'
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { BackButton } from '../components/Screen'
 import { FoodIcon } from '../components/FoodIcon'
 import { getFoodImageUrl } from '../components/FoodTile'
 import { Illustration } from '../components/Illustration'
@@ -13,6 +14,8 @@ import {
   QUANTITY_STEPS,
   quantityStepIndexFromLabel,
 } from '../data/nutrition'
+import { isReturnTo, type ReturnTo } from '../lib/addFoodParams'
+import type { PlannerRestoreState } from '../lib/plannerRestore'
 import { getMealSlot, itemsForMode } from '../lib/mealPlans'
 import { useMealActions, usePlans } from '../state/useAppData'
 import { MEAL_TYPES, type MealMode, type MealType } from '../types'
@@ -63,6 +66,7 @@ function isMealMode(v: string | null): v is MealMode {
 /** Single food item within a meal — hero art, per-serving nutrition, quantity. */
 export function MealItemDetail() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { date, meal: mealParam, itemId } = useParams<{
     date: string
     meal: string
@@ -72,6 +76,22 @@ export function MealItemDetail() {
   const mode: MealMode = isMealMode(searchParams.get('mode'))
     ? (searchParams.get('mode') as MealMode)
     : 'logged'
+  const returnTo: ReturnTo = isReturnTo(searchParams.get('returnTo'))
+    ? (searchParams.get('returnTo') as ReturnTo)
+    : 'meal'
+
+  const goBack = () => {
+    if (returnTo === 'planner') {
+      const restore = location.state?.plannerRestore as PlannerRestoreState | undefined
+      navigate('/planner', { state: restore ? { restore } : null })
+      return
+    }
+    if (returnTo === 'home') {
+      navigate('/')
+      return
+    }
+    navigate(`/meal/${date}/${mealParam}?mode=${mode}`)
+  }
 
   const plans = usePlans()
   const { updateItem } = useMealActions()
@@ -102,6 +122,8 @@ export function MealItemDetail() {
   const meal = mealParam
 
   if (!item || !baseNutrition) {
+    if (returnTo === 'planner') return <Navigate to="/planner" replace />
+    if (returnTo === 'home') return <Navigate to="/" replace />
     return <Navigate to={`/meal/${date}/${meal}?mode=${mode}`} replace />
   }
 
@@ -128,23 +150,17 @@ export function MealItemDetail() {
     <div className="pt-safe h-dvh overflow-hidden bg-cream">
       <div className="mx-auto flex h-full max-w-md flex-col px-5">
         <header className="flex h-14 shrink-0 items-center justify-between">
-          <button
-            aria-label="Back"
-            onClick={() => navigate(`/meal/${date}/${meal}?mode=${mode}`)}
-            className="-ml-1 flex h-10 w-10 items-center justify-center rounded-full border border-line-soft bg-paper text-ink shadow-card active:bg-cream-dark"
-          >
-            <ArrowLeft size={22} strokeWidth={2.2} />
-          </button>
+          <BackButton onClick={goBack} className="-ml-1" />
           <h1 className="text-[22px] font-extrabold text-brand-deep">{name}</h1>
           <button
             type="button"
             aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
             aria-pressed={favorited}
             onClick={toggleFavorite}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-brand active:bg-brand-tint"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-paper text-brand shadow-card active:bg-cream-dark"
           >
             <Heart
-              size={22}
+              size={20}
               strokeWidth={2.2}
               className={favorited ? 'fill-brand text-brand' : undefined}
             />

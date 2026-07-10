@@ -103,7 +103,12 @@ export function greetingForNow(): string {
   return 'Good evening'
 }
 
-import type { MealType } from '../types'
+import type { MealMode, MealType } from '../types'
+
+/** Past days default to logging; today and future default to planning. */
+export function defaultMealModeForDate(date: string, today = todayISO()): MealMode {
+  return date < today ? 'logged' : 'planned'
+}
 
 /** Suggest which meal slot to open based on time of day. */
 export function suggestedMealForNow(): MealType {

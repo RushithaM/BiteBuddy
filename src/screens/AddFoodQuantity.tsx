@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Minus, Plus } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Screen, SubHeader } from '../components/Screen'
-import { PrimaryButton } from '../components/Buttons'
+import { AddToMealButton } from '../components/Buttons'
 import { FoodIcon } from '../components/FoodIcon'
 import { TextField } from '../components/TextField'
 import { useMealActions } from '../state/useAppData'
@@ -127,9 +127,9 @@ export function AddFoodQuantity() {
       </div>
 
       <div className="mt-auto pb-6 pt-8">
-        <PrimaryButton type="button" onClick={addToMeal}>
+        <AddToMealButton onClick={addToMeal}>
           Add to {MEAL_LABELS[meal]}
-        </PrimaryButton>
+        </AddToMealButton>
       </div>
     </Screen>
   )

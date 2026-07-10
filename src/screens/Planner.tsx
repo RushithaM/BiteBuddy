@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react'
-import { CalendarDays, Flame, Plus } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { CalendarDays, Flame } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Screen } from '../components/Screen'
 import { CalendarStrip } from '../components/CalendarStrip'
+import { DatePickerSheet } from '../components/DatePickerSheet'
 import { PlannerMealCard } from '../components/PlannerMealCard'
 import { PlanLogToggle } from '../components/PlanLogToggle'
 import { TipBanner } from '../components/TipBanner'
-import { showToast } from '../components/toast'
 import { usePlans, useMealActions } from '../state/useAppData'
 import { getMealSlot, itemsForMode } from '../lib/mealPlans'
 import {
@@ -14,23 +14,46 @@ import {
   mealsWithItemsOnDate,
   pendingPlannedCount,
 } from '../lib/plannerStats'
-import { formatPlannerDateShort, suggestedMealForNow, todayISO } from '../lib/dates'
-import { MEAL_TYPES, type MealMode } from '../types'
+import { formatPlannerDateShort, suggestedMealForNow, todayISO, defaultMealModeForDate } from '../lib/dates'
+import { buildPlannerRestore, savePlannerRestore, type PlannerRestoreState } from '../lib/plannerRestore'
+import { MEAL_TYPES, type MealMode, type MealType } from '../types'
 
 /** Plan tab — week calendar, Planning / Logging toggle, meals for the day. */
 export function Planner() {
   const navigate = useNavigate()
+  const location = useLocation()
   const plans = usePlans()
-  const { removeItem, logPlannedItem } = useMealActions()
+  const { removeItem } = useMealActions()
   const [selectedDate, setSelectedDate] = useState(todayISO())
-  const [viewMode, setViewMode] = useState<MealMode>('planned')
+  const [viewMode, setViewMode] = useState<MealMode>(() => defaultMealModeForDate(todayISO()))
+  const [expandedMeals, setExpandedMeals] = useState<Partial<Record<MealType, boolean>>>({})
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const pendingScroll = useRef<number | null>(null)
   const dayPlan = plans[selectedDate] ?? {}
-  const today = todayISO()
-  const isToday = selectedDate === today
 
-  const logItem = (meal: (typeof MEAL_TYPES)[number], itemId: string) => {
-    logPlannedItem(selectedDate, meal, itemId)
-    showToast('Marked as eaten')
+  useEffect(() => {
+    const restore = location.state?.restore as PlannerRestoreState | undefined
+    if (!restore) return
+
+    setSelectedDate(restore.date)
+    setViewMode(restore.viewMode)
+    setExpandedMeals(restore.expandedMeals)
+    pendingScroll.current = restore.scrollY
+    navigate(location.pathname, { replace: true, state: null })
+  }, [location.pathname, location.state, navigate])
+
+  useEffect(() => {
+    if (pendingScroll.current == null) return
+    const scrollY = pendingScroll.current
+    pendingScroll.current = null
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY, left: 0 })
+    })
+  }, [selectedDate, viewMode, expandedMeals])
+
+  const selectDate = (date: string) => {
+    setSelectedDate(date)
+    setViewMode(defaultMealModeForDate(date))
   }
 
   const mealsFilled = useMemo(
@@ -53,56 +76,70 @@ export function Planner() {
       ? `Planned meals for ${formatPlannerDateShort(selectedDate)}`
       : `Logged meals for ${formatPlannerDateShort(selectedDate)}`
 
-  const openAddMeal = (meal?: (typeof MEAL_TYPES)[number]) => {
+  const openAddMeal = (meal?: MealType) => {
     const m = meal ?? suggestedMealForNow()
+    savePlannerRestore(
+      buildPlannerRestore({
+        date: selectedDate,
+        viewMode,
+        expandedMeals,
+        openMeal: m,
+        scrollY: window.scrollY,
+      }),
+    )
     navigate(`/add?date=${selectedDate}&meal=${m}&mode=${viewMode}&returnTo=planner`)
   }
 
-  const openMeal = (meal: (typeof MEAL_TYPES)[number]) => {
-    const items = itemsForMode(getMealSlot(dayPlan, meal), viewMode)
-    if (items.length === 0) {
-      openAddMeal(meal)
-      return
-    }
-    navigate(`/meal/${selectedDate}/${meal}?mode=${viewMode}`)
+  const openItem = (meal: MealType, itemId: string) => {
+    const restore = buildPlannerRestore({
+      date: selectedDate,
+      viewMode,
+      expandedMeals,
+      openMeal: meal,
+      scrollY: window.scrollY,
+    })
+    navigate(
+      `/meal/${selectedDate}/${meal}/item/${itemId}?mode=${viewMode}&returnTo=planner`,
+      { state: { plannerRestore: restore } },
+    )
+  }
+
+  const setMealExpanded = (meal: MealType, open: boolean) => {
+    setExpandedMeals((prev) => ({ ...prev, [meal]: open }))
   }
 
   return (
     <Screen withNav>
-      <header className="flex items-center justify-between pt-4">
-        <span className="w-10" aria-hidden />
-        <h1 className="text-[22px] font-extrabold text-ink">Plan</h1>
+      <header className="flex items-start justify-between gap-4 pt-4">
+        <div className="min-w-0">
+          <h1 className="text-[26px] font-extrabold leading-tight text-ink">Plan</h1>
+          <p className="mt-1 text-[14px] font-semibold text-muted">
+            Plan ahead. Eat better. Feel great. 🍃
+          </p>
+        </div>
         <button
           type="button"
           aria-label="Pick a date"
-          onClick={() => {
-            setSelectedDate(today)
-            showToast('Jumped to today')
-          }}
-          className={`flex h-10 w-10 items-center justify-center rounded-full active:bg-cream-dark ${
-            isToday ? 'text-brand' : 'text-ink'
-          }`}
+          onClick={() => setCalendarOpen(true)}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-paper text-brand shadow-card ring-1 ring-line-soft active:bg-cream-dark"
         >
           <CalendarDays size={22} strokeWidth={2.2} />
         </button>
       </header>
 
-      {!isToday && (
-        <button
-          type="button"
-          onClick={() => setSelectedDate(today)}
-          className="mt-2 w-full rounded-full bg-brand-tint py-2 text-center text-[13px] font-extrabold text-brand active:bg-brand/15"
-        >
-          Jump to today
-        </button>
-      )}
+      <DatePickerSheet
+        open={calendarOpen}
+        selected={selectedDate}
+        plans={plans}
+        onSelect={selectDate}
+        onClose={() => setCalendarOpen(false)}
+      />
 
-      <div className="mt-3">
+      <div className="mt-4">
         <CalendarStrip
           selected={selectedDate}
-          onSelect={setSelectedDate}
+          onSelect={selectDate}
           plans={plans}
-          mode={viewMode}
         />
       </div>
 
@@ -135,18 +172,16 @@ export function Planner() {
             meal={meal}
             mode={viewMode}
             items={itemsForMode(getMealSlot(dayPlan, meal), viewMode)}
+            expanded={expandedMeals[meal] ?? false}
+            onExpandedChange={(open) => setMealExpanded(meal, open)}
             onAdd={() => openAddMeal(meal)}
-            onOpenMeal={() => openMeal(meal)}
-            onOpenItem={(itemId) =>
-              navigate(`/meal/${selectedDate}/${meal}/item/${itemId}?mode=${viewMode}`)
-            }
+            onOpenItem={(itemId) => openItem(meal, itemId)}
             onRemove={(itemId) => removeItem(selectedDate, meal, itemId, viewMode)}
-            onLog={(itemId) => logItem(meal, itemId)}
           />
         ))}
       </div>
 
-      {viewMode === 'planned' ? (
+      {viewMode === 'planned' && selectedDate >= todayISO() && (
         <div className="mt-5 pb-2">
           <TipBanner large mascot="mascot-avocado">
             <>
@@ -156,15 +191,6 @@ export function Planner() {
             </>
           </TipBanner>
         </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => openAddMeal()}
-          className="mt-5 mb-2 flex w-full items-center justify-center gap-2 rounded-full border-2 border-brand bg-paper py-3.5 text-[15px] font-extrabold text-brand shadow-card transition-colors active:bg-brand-tint"
-        >
-          <Plus size={18} strokeWidth={2.6} />
-          Add meal
-        </button>
       )}
     </Screen>
   )

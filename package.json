@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "icons": "node scripts/generate-icons.mjs",
+    "avatars:import": "node scripts/import-avatars.mjs",
     "food-icons:cutout": "node scripts/cutout-food-icons.mjs",
     "meal-scenes:cutout": "node scripts/remove-meal-image-bg.mjs"
   },

@@ -12,7 +12,7 @@ function isMealMode(v: string | null): v is MealMode {
   return v === 'planned' || v === 'logged'
 }
 
-function isReturnTo(v: string | null): v is ReturnTo {
+export function isReturnTo(v: string | null): v is ReturnTo {
   return v === 'home' || v === 'meal' || v === 'planner'
 }
 

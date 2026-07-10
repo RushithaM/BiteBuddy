@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check } from 'lucide-react'
-import { Screen } from '../components/Screen'
+import { Check } from 'lucide-react'
+import { Screen, BackButton } from '../components/Screen'
 import { PrimaryButton } from '../components/Buttons'
+import { AvatarPickerTile } from '../components/AvatarImage'
 import { Illustration } from '../components/Illustration'
 import { ToggleSwitch } from '../components/ToggleSwitch'
 import { AVATAR_OPTIONS, DEFAULT_AVATAR } from '../data/avatars'
@@ -92,13 +93,7 @@ export function Setup() {
   return (
     <Screen className="flex min-h-dvh flex-col">
       <header className="flex h-14 items-center justify-between">
-        <button
-          aria-label="Back"
-          onClick={goBack}
-          className="-ml-1 flex h-10 w-10 items-center justify-center rounded-full text-ink active:bg-cream-dark"
-        >
-          <ArrowLeft size={24} strokeWidth={2.2} />
-        </button>
+        <BackButton onClick={goBack} className="-ml-1" />
         <div className="flex gap-1.5">
           {STEPS.map((_, i) => (
             <span
@@ -206,26 +201,16 @@ export function Setup() {
           ))}
 
         {step === 'avatar' && (
-          <div className="grid grid-cols-3 gap-3">
-            {AVATAR_OPTIONS.map(({ id, label }) => {
-              const selected = id === avatarId
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  aria-label={label}
-                  aria-pressed={selected}
-                  onClick={() => setAvatarId(id)}
-                  className={`flex aspect-square items-center justify-center overflow-hidden rounded-card p-1.5 transition-colors ${
-                    selected
-                      ? 'bg-brand-tint ring-2 ring-brand ring-offset-2 ring-offset-cream'
-                      : 'bg-paper shadow-card active:bg-cream-dark'
-                  }`}
-                >
-                  <Illustration name={id} className="h-full w-full rounded-[0.65rem] object-cover" />
-                </button>
-              )
-            })}
+          <div className="grid grid-cols-4 gap-2.5">
+            {AVATAR_OPTIONS.map(({ id, label }) => (
+              <AvatarPickerTile
+                key={id}
+                id={id}
+                label={label}
+                selected={id === avatarId}
+                onSelect={() => setAvatarId(id)}
+              />
+            ))}
           </div>
         )}
       </div>

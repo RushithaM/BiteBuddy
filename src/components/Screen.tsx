@@ -3,6 +3,26 @@ import { ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { BottomNav } from './BottomNav'
 
+/** Circular cream back control — shared across sub-screens. */
+export function BackButton({
+  onClick,
+  className = '',
+}: {
+  onClick: () => void
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      aria-label="Back"
+      onClick={onClick}
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper text-ink shadow-card transition-colors active:bg-cream-dark ${className}`}
+    >
+      <ArrowLeft size={22} strokeWidth={2.4} />
+    </button>
+  )
+}
+
 /**
  * Page shell: cream background, safe-area padding, centered mobile column.
  * `withNav` reserves space for (and renders) the bottom navigation.
@@ -39,13 +59,7 @@ export function SubHeader({
   const navigate = useNavigate()
   return (
     <header className="flex h-14 items-center justify-between">
-      <button
-        aria-label="Back"
-        onClick={onBack ?? (() => navigate(-1))}
-        className="-ml-1 flex h-10 w-10 items-center justify-center rounded-full text-ink active:bg-cream-dark"
-      >
-        <ArrowLeft size={24} strokeWidth={2.2} />
-      </button>
+      <BackButton onClick={onBack ?? (() => navigate(-1))} className="-ml-1" />
       {title && <h1 className="text-xl font-extrabold text-ink">{title}</h1>}
       <span className="flex h-10 w-10 items-center justify-end">{right}</span>
     </header>
