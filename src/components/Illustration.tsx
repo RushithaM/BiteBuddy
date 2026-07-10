@@ -43,6 +43,7 @@ export type IllustrationName =
   | 'plus-menu-scene'
   | 'item-detail-frame'
   | 'item-detail-footer'
+  | 'profile-scene'
 
 const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: string }> = {
   'logo-heart': {
@@ -142,6 +143,14 @@ const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: str
     node: (
       <span className="flex h-full w-full items-end justify-center bg-gradient-to-b from-transparent to-lime-100 leading-none">
         <span className="text-3xl">🌿</span>
+      </span>
+    ),
+  },
+  'profile-scene': {
+    label: 'Profile hero — hills, trees and clouds',
+    node: (
+      <span className="flex h-full w-full items-end justify-center bg-gradient-to-b from-sky-50 to-brand-tint/40 leading-none">
+        <span className="text-4xl">🌳</span>
       </span>
     ),
   },

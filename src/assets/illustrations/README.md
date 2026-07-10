@@ -29,6 +29,7 @@ them up automatically; until a file exists it renders an emoji placeholder.
 | `plus-menu-scene`  | Plus menu sheet — avocado on grass footer scene      |
 | `item-detail-frame` | Item detail screen — decorative frame behind food art |
 | `item-detail-footer` | Item detail screen — rolling hills footer scene   |
+| `profile-scene`    | Profile tab — hills, trees and clouds hero background |
 
 Regenerate all four with `node scripts/compose-meal-scenes.mjs`. Dish cutouts
 live in `src/assets/source-art/dish-*.png`; scene frames are `scene-*.png`.
