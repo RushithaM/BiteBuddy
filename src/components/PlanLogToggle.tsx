@@ -11,7 +11,7 @@ export function PlanLogToggle({
 }) {
   return (
     <div
-      className="mx-auto flex w-full max-w-xs rounded-full border border-line bg-paper p-1"
+      className="flex w-full rounded-full border border-line bg-paper p-1 shadow-card"
       role="tablist"
       aria-label="Plan or log meals"
     >
@@ -24,8 +24,8 @@ export function PlanLogToggle({
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(mode)}
-            className={`flex-1 rounded-full py-2 text-sm font-extrabold transition-colors ${
-              selected ? 'bg-brand text-white shadow-card' : 'text-ink-soft active:bg-cream-dark'
+            className={`flex-1 rounded-full py-2.5 text-[15px] font-extrabold transition-colors ${
+              selected ? 'bg-brand text-white shadow-card' : 'text-brand active:bg-cream-dark'
             }`}
           >
             {MEAL_MODE_LABELS[mode]}

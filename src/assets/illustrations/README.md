@@ -6,9 +6,11 @@ them up automatically; until a file exists it renders an emoji placeholder.
 
 | File name          | Used on                                            |
 | ------------------ | -------------------------------------------------- |
-| `logo-heart`       | Welcome / Login — heart logo above "Nutri"         |
+| `logo-heart`       | Splash / Welcome / Login — heart logo above "Nutri" |
+| `splash-mascot`    | Splash screen — waving avocado mascot at bottom     |
 | `welcome-hero`     | Welcome screen — veggie bowl with tomato & avocado |
-| `login-bowl`       | Login / Signup — smiling salad bowl                |
+| `login-mascot`     | Login / Signup — avocado mascot illustration       |
+| `login-bowl`       | Legacy — smiling salad bowl (unused)               |
 | `mascot-avocado`   | Day Plan banner, Profile avatar                    |
 | `mascot-broccoli`  | Weekly Planner tip banner                          |
 | `avatar-user`      | Profile screen avatar (legacy)                     |
@@ -23,6 +25,7 @@ them up automatically; until a file exists it renders an emoji placeholder.
 | `meal-snack`       | Home meal card — chai + cookie, sunset scene         |
 | `meal-dinner`      | Home meal card — curry bowl, moonlit scene           |
 | `today-day-end`    | Home screen — avocado in hammock below dinner cards  |
+| `plus-menu-scene`  | Plus menu sheet — avocado on grass footer scene      |
 
 Regenerate all four with `node scripts/compose-meal-scenes.mjs`. Dish cutouts
 live in `src/assets/source-art/dish-*.png`; scene frames are `scene-*.png`.

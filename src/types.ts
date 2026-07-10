@@ -53,13 +53,20 @@ export interface MealItem {
   customName?: string
   /** set on a planned item once the user marks it as eaten */
   loggedAt?: string
+  quantity?: string
+  note?: string
 }
 
 /** Planned and logged items kept separate for the same meal slot. */
 export interface MealSlot {
   planned: MealItem[]
   logged: MealItem[]
+  /** 1 = meh, 2 = okay, 3 = loved it */
+  mood?: MealMood
+  mealNote?: string
 }
+
+export type MealMood = 1 | 2 | 3
 
 /** ISO date (yyyy-mm-dd) → meal type → planned + logged items */
 export type PlanByDate = Record<string, Partial<Record<MealType, MealSlot>>>
@@ -72,8 +79,33 @@ export type AvatarId =
   | 'avatar-broccoli'
   | 'avatar-banana'
 
+export type GoalId =
+  | 'track-meals'
+  | 'eat-healthier'
+  | 'weight-loss'
+  | 'build-muscle'
+  | 'plan-weekly'
+
+export type FoodPreference = 'vegetarian' | 'vegan' | 'non-vegetarian' | 'eggetarian'
+
+export interface MealReminder {
+  enabled: boolean
+  time: string
+}
+
+export interface MotivationalReminder {
+  enabled: boolean
+  time: string
+}
+
 export interface User {
   name: string
   email: string
   avatarId: AvatarId
+  setupComplete?: boolean
+  goals?: GoalId[]
+  foodPreference?: FoodPreference
+  mealReminders?: Partial<Record<MealType, MealReminder>>
+  hydrationReminders?: { enabled: boolean; interval: string }
+  motivationalReminders?: MotivationalReminder | boolean
 }

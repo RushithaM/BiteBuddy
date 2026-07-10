@@ -25,7 +25,9 @@ export function getIllustrationUrl(name: string): string | undefined {
 
 export type IllustrationName =
   | 'logo-heart'
+  | 'splash-mascot'
   | 'welcome-hero'
+  | 'login-mascot'
   | 'login-bowl'
   | 'mascot-avocado'
   | 'mascot-broccoli'
@@ -37,11 +39,16 @@ export type IllustrationName =
   | 'avatar-broccoli'
   | 'avatar-banana'
   | 'today-day-end'
+  | 'plus-menu-scene'
 
 const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: string }> = {
   'logo-heart': {
     label: 'Nutri heart logo',
     node: <HeartMark className="h-full w-auto" />,
+  },
+  'splash-mascot': {
+    label: 'Waving avocado mascot',
+    node: <span className="text-[7rem] leading-none">🥑</span>,
   },
   'welcome-hero': {
     label: 'Veggie bowl with tomato and avocado friends',
@@ -52,6 +59,10 @@ const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: str
         <span className="text-6xl">🥑</span>
       </span>
     ),
+  },
+  'login-mascot': {
+    label: 'Avocado mascot welcoming you back',
+    node: <span className="text-7xl leading-none">🥑</span>,
   },
   'login-bowl': {
     label: 'Smiling salad bowl',
@@ -102,6 +113,10 @@ const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: str
         <span className="text-5xl">🌳</span>
       </span>
     ),
+  },
+  'plus-menu-scene': {
+    label: 'Avocado mascot on grass',
+    node: <span className="text-4xl leading-none">🥑</span>,
   },
 }
 

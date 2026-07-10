@@ -56,6 +56,12 @@ export function formatFullDate(iso: string): string {
   return `${WEEKDAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
 }
 
+/** e.g. "Fri, 10 July" */
+export function formatPlannerDateShort(iso: string): string {
+  const d = fromISODate(iso)
+  return `${WEEKDAYS[d.getDay()].slice(0, 3)}, ${d.getDate()} ${MONTHS[d.getMonth()]}`
+}
+
 /** e.g. "Wednesday, 14 May" */
 export function formatPlannerDate(iso: string): string {
   const d = fromISODate(iso)
@@ -95,4 +101,15 @@ export function greetingForNow(): string {
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
   return 'Good evening'
+}
+
+import type { MealType } from '../types'
+
+/** Suggest which meal slot to open based on time of day. */
+export function suggestedMealForNow(): MealType {
+  const h = new Date().getHours()
+  if (h < 11) return 'breakfast'
+  if (h < 14) return 'lunch'
+  if (h < 17) return 'snack'
+  return 'dinner'
 }

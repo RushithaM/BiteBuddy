@@ -11,6 +11,7 @@ export function FoodRow({
   iconId,
   customName,
   variant,
+  onOpen,
   onLog,
   onRemove,
 }: {
@@ -18,6 +19,7 @@ export function FoodRow({
   iconId: FoodIconId
   customName?: string
   variant: FoodRowVariant
+  onOpen?: () => void
   onLog?: () => void
   onRemove?: () => void
 }) {
@@ -30,20 +32,27 @@ export function FoodRow({
         done ? 'border-brand/35 bg-brand-tint/50' : 'border-line bg-paper'
       }`}
     >
-      <FoodIcon
-        id={iconId}
-        className={`h-[3.75rem] w-[3.75rem] shrink-0 object-contain ${done ? 'opacity-55 saturate-50' : ''}`}
-      />
-      <div className="min-w-0 flex-1">
-        <span
-          className={`block truncate text-[15px] font-bold ${done ? 'text-ink-soft line-through decoration-brand/40' : 'text-ink'}`}
-        >
-          {name}
-        </span>
-        {done && (
-          <span className="mt-0.5 block text-[11.5px] font-extrabold text-brand">Logged ✓</span>
-        )}
-      </div>
+      <button
+        type="button"
+        onClick={onOpen}
+        disabled={!onOpen}
+        className="flex min-w-0 flex-1 items-center gap-3.5 text-left disabled:cursor-default"
+      >
+        <FoodIcon
+          id={iconId}
+          className={`h-[3.75rem] w-[3.75rem] shrink-0 object-contain ${done ? 'opacity-55 saturate-50' : ''}`}
+        />
+        <div className="min-w-0 flex-1">
+          <span
+            className={`block truncate text-[15px] font-bold ${done ? 'text-ink-soft line-through decoration-brand/40' : 'text-ink'}`}
+          >
+            {name}
+          </span>
+          {done && (
+            <span className="mt-0.5 block text-[11.5px] font-extrabold text-brand">Logged ✓</span>
+          )}
+        </div>
+      </button>
 
       {variant === 'planning-pending' && (
         <div className="flex shrink-0 items-center gap-1.5">

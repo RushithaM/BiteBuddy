@@ -36,3 +36,37 @@ export function MealSceneThumb({ meal }: { meal: MealType }) {
 export function DishThumb({ foodId }: { foodId: string }) {
   return <FoodTile foodId={foodId} className="h-11 w-11" emojiClassName="text-2xl" />
 }
+
+/** Larger meal scene used on the meal detail screen (same art as home cards). */
+export function MealSceneHero({ meal, large = false }: { meal: MealType; large?: boolean }) {
+  const meta = MEAL_META[meal]
+  const sceneUrl = getIllustrationUrl(`meal-${meal}`)
+
+  if (sceneUrl) {
+    return (
+      <img
+        src={sceneUrl}
+        alt=""
+        className={
+          large
+            ? 'h-auto w-full object-cover'
+            : 'h-44 w-full max-w-sm object-contain'
+        }
+        aria-hidden
+      />
+    )
+  }
+
+  return (
+    <span
+      className={`relative flex w-full items-center justify-center rounded-card ${
+        large ? 'aspect-[4/3]' : 'h-44 max-w-sm'
+      }`}
+      style={{ backgroundColor: meta.sceneTint }}
+      aria-hidden
+    >
+      <span className="absolute top-4 left-5 text-xl leading-none">{meta.icon}</span>
+      <span className={`leading-none opacity-60 ${large ? 'text-8xl' : 'text-7xl'}`}>🍽️</span>
+    </span>
+  )
+}

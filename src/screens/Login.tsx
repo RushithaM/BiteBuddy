@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
 import { Screen, SubHeader } from '../components/Screen'
-import { LogoLockup } from '../components/Logo'
 import { PrimaryButton, SecondaryButton } from '../components/Buttons'
 import { TextField, PasswordField } from '../components/TextField'
 import { Illustration } from '../components/Illustration'
@@ -17,9 +16,14 @@ export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const afterAuth = () => {
+    const current = dataService.getUser()
+    navigate(current?.setupComplete ? '/' : '/setup', { replace: true })
+  }
+
   const signIn = (userEmail: string) => {
     dataService.signIn({ name: 'Jyothish Kumar', email: userEmail, avatarId: DEFAULT_AVATAR })
-    navigate('/', { replace: true })
+    afterAuth()
   }
 
   const onSubmit = (e: FormEvent) => {
@@ -36,9 +40,11 @@ export function Login() {
       <SubHeader onBack={() => navigate('/welcome')} />
 
       <div className="flex flex-col items-center text-center">
-        <LogoLockup compact />
-        <p className="mt-1 text-[15px] font-bold text-ink-soft">Welcome back!</p>
-        <Illustration name="login-bowl" className="my-5 max-h-36 object-contain" />
+        <h1 className="text-[26px] font-extrabold text-ink">Welcome back!</h1>
+        <Illustration
+          name="login-mascot"
+          className="my-4 max-h-[9.5rem] w-full max-w-[11rem] object-contain"
+        />
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
@@ -46,7 +52,7 @@ export function Login() {
           icon={<Mail size={19} />}
           type="email"
           autoComplete="email"
-          placeholder="Email address"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />

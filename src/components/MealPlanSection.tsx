@@ -15,26 +15,34 @@ export function MealPlanSection({
   meal,
   items,
   mode,
+  onOpen,
   onAdd,
   onRemove,
   onLog,
+  onOpenItem,
 }: {
   meal: MealType
   items: MealItem[]
   mode: MealMode
+  onOpen?: () => void
   onAdd: () => void
   onRemove: (itemId: string) => void
   onLog?: (itemId: string) => void
+  onOpenItem?: (itemId: string) => void
 }) {
   const meta = MEAL_META[meal]
 
   return (
-    <section className="rounded-card border border-line bg-paper p-3.5">
+    <section className="rounded-card border border-line-soft bg-paper p-3.5 shadow-card">
       <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-[16px] font-extrabold text-ink">
+        <button
+          type="button"
+          onClick={onOpen}
+          className="flex min-w-0 flex-1 items-center gap-2 text-left active:opacity-80"
+        >
           <span className="text-lg leading-none">{meta.icon}</span>
-          {MEAL_LABELS[meal]}
-        </h2>
+          <h2 className="text-[16px] font-extrabold text-ink">{MEAL_LABELS[meal]}</h2>
+        </button>
         <InlineAddButton onClick={onAdd} />
       </div>
 
@@ -49,6 +57,7 @@ export function MealPlanSection({
                 iconId={resolveItemIcon(item.foodId, item.iconId)}
                 customName={item.customName}
                 variant={variant}
+                onOpen={onOpenItem ? () => onOpenItem(item.id) : undefined}
                 onLog={
                   variant === 'planning-pending' && onLog ? () => onLog(item.id) : undefined
                 }

@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, User } from 'lucide-react'
 import { Screen, SubHeader } from '../components/Screen'
-import { LogoLockup } from '../components/Logo'
 import { PrimaryButton, SecondaryButton } from '../components/Buttons'
 import { TextField, PasswordField } from '../components/TextField'
 import { Illustration } from '../components/Illustration'
@@ -25,7 +24,7 @@ export function Signup() {
       return
     }
     dataService.signIn({ name: name.trim(), email: email.trim(), avatarId: DEFAULT_AVATAR })
-    navigate('/', { replace: true })
+    navigate('/setup', { replace: true })
   }
 
   return (
@@ -33,9 +32,11 @@ export function Signup() {
       <SubHeader onBack={() => navigate('/login')} />
 
       <div className="flex flex-col items-center text-center">
-        <LogoLockup compact />
-        <p className="mt-1 text-[15px] font-bold text-ink-soft">Create your account</p>
-        <Illustration name="login-bowl" className="my-5 max-h-32 object-contain" />
+        <h1 className="text-[26px] font-extrabold text-ink">Create your account</h1>
+        <Illustration
+          name="login-mascot"
+          className="my-4 max-h-[9.5rem] w-full max-w-[11rem] object-contain"
+        />
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
@@ -50,7 +51,7 @@ export function Signup() {
           icon={<Mail size={19} />}
           type="email"
           autoComplete="email"
-          placeholder="Email address"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -80,7 +81,7 @@ export function Signup() {
               email: 'jyothish@example.com',
               avatarId: DEFAULT_AVATAR,
             })
-            navigate('/', { replace: true })
+            navigate('/setup', { replace: true })
           }}
         >
           <GoogleG className="h-5 w-5" />

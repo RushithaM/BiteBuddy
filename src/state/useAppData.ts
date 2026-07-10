@@ -1,6 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { dataService } from '../services/data'
-import type { FoodIconId, MealMode, MealType } from '../types'
+import type { FoodIconId, MealMode, MealType, MealMood } from '../types'
 
 export function useUser() {
   return useSyncExternalStore(
@@ -24,17 +24,24 @@ export function useMealActions() {
       foodId: string,
       mode: MealMode,
       iconId?: FoodIconId,
-    ) => dataService.addFood(date, meal, foodId, mode, iconId),
+      opts?: { quantity?: string; note?: string },
+    ) => dataService.addFood(date, meal, foodId, mode, iconId, opts),
     addCustomFood: (
       date: string,
       meal: MealType,
       name: string,
       iconId: FoodIconId,
       mode: MealMode,
-    ) => dataService.addCustomFood(date, meal, name, iconId, mode),
+      opts?: { quantity?: string; note?: string },
+    ) => dataService.addCustomFood(date, meal, name, iconId, mode, opts),
     removeItem: (date: string, meal: MealType, itemId: string, mode: MealMode) =>
       dataService.removeItem(date, meal, itemId, mode),
     logPlannedItem: (date: string, meal: MealType, itemId: string) =>
       dataService.logPlannedItem(date, meal, itemId),
+    updateMealMeta: (
+      date: string,
+      meal: MealType,
+      patch: { mood?: MealMood; mealNote?: string },
+    ) => dataService.updateMealMeta(date, meal, patch),
   }
 }

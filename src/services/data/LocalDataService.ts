@@ -1,6 +1,7 @@
-import type { MealItem, MealType, PlanByDate, User, FoodIconId, MealSlot, MealMode } from '../../types'
+import type { MealItem, MealType, PlanByDate, User, FoodIconId, MealSlot, MealMode, MealMood, MotivationalReminder } from '../../types'
 import type { DataService } from './DataService'
 import { DEFAULT_AVATAR } from '../../data/avatars'
+import { DEFAULT_MOTIVATIONAL_TIME } from '../../data/setup'
 import { getFood } from '../../data/foods'
 import { EMPTY_MEAL_SLOT } from '../../lib/mealPlans'
 import { todayISO } from '../../lib/dates'
@@ -8,6 +9,7 @@ import { buildSeedPlans } from './seed'
 
 const PLANS_KEY = 'nutri.plans.v2'
 const USER_KEY = 'nutri.user.v1'
+const PROFILE_KEY = 'nutri.profile.v1'
 
 function load<T>(key: string): T | null {
   try {
@@ -20,6 +22,23 @@ function load<T>(key: string): T | null {
 
 function save(key: string, value: unknown) {
   localStorage.setItem(key, JSON.stringify(value))
+}
+
+function normalizeMotivationalReminders(
+  value: MotivationalReminder | boolean | undefined,
+): MotivationalReminder | undefined {
+  if (value === undefined) return undefined
+  if (typeof value === 'boolean') return { enabled: value, time: DEFAULT_MOTIVATIONAL_TIME }
+  return value
+}
+
+function normalizeUser(user: User): User {
+  return {
+    ...user,
+    avatarId: user.avatarId ?? DEFAULT_AVATAR,
+    setupComplete: user.setupComplete ?? true,
+    motivationalReminders: normalizeMotivationalReminders(user.motivationalReminders),
+  }
 }
 
 function normalizeItem(item: MealItem): MealItem {
@@ -58,9 +77,49 @@ function normalizePlans(plans: Record<string, unknown>): PlanByDate {
   return next
 }
 
+/** Expand legacy single-item masala-dosa breakfast into separate foods. */
+function migrateLegacyMeals(plans: PlanByDate): PlanByDate {
+  const today = todayISO()
+  const slot = plans[today]?.breakfast
+  const logged = slot?.logged ?? []
+  if (logged.length === 1 && logged[0].foodId === 'masala-dosa') {
+    const mk = (foodId: string, quantity: string): MealItem => {
+      const food = getFood(foodId)
+      return {
+        id: `mig-${foodId}`,
+        foodId,
+        iconId: food.iconId,
+        quantity,
+      }
+    }
+    return {
+      ...plans,
+      [today]: {
+        ...plans[today],
+        breakfast: {
+          planned: [],
+          logged: [
+            mk('dosa', '2 pieces'),
+            mk('chutney', '2 tbsp'),
+            mk('sambar', '1 bowl'),
+          ],
+          mood: slot?.mood,
+          mealNote: slot?.mealNote,
+        },
+      },
+    }
+  }
+  return plans
+}
+
 function loadPlans(): PlanByDate {
   const v2 = load<PlanByDate>(PLANS_KEY)
-  if (v2) return normalizePlans(v2)
+  if (v2) {
+    const normalized = normalizePlans(v2)
+    const migrated = migrateLegacyMeals(normalized)
+    if (migrated !== normalized) save(PLANS_KEY, migrated)
+    return migrated
+  }
 
   const v1 = load<Record<string, unknown>>('nutri.plans.v1')
   if (v1) {
@@ -78,13 +137,20 @@ function slotFor(plans: PlanByDate, date: string, meal: MealType): MealSlot {
   return plans[date]?.[meal] ?? EMPTY_MEAL_SLOT
 }
 
-function newItem(foodId: string, iconId?: FoodIconId, customName?: string): MealItem {
+function newItem(
+  foodId: string,
+  iconId?: FoodIconId,
+  customName?: string,
+  opts?: { quantity?: string; note?: string },
+): MealItem {
   const food = getFood(foodId)
   return {
     id: `m-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     foodId,
     iconId: iconId ?? food.iconId,
     ...(customName ? { customName } : {}),
+    ...(opts?.quantity ? { quantity: opts.quantity } : {}),
+    ...(opts?.note ? { note: opts.note } : {}),
   }
 }
 
@@ -96,9 +162,7 @@ export class LocalDataService implements DataService {
   constructor() {
     this.plans = loadPlans()
     const storedUser = load<User>(USER_KEY)
-    this.user = storedUser
-      ? { ...storedUser, avatarId: storedUser.avatarId ?? DEFAULT_AVATAR }
-      : null
+    this.user = storedUser ? normalizeUser(storedUser) : null
   }
 
   private emit() {
@@ -119,8 +183,17 @@ export class LocalDataService implements DataService {
   }
 
   signIn(user: User) {
-    this.user = { ...user, avatarId: user.avatarId ?? DEFAULT_AVATAR }
+    const saved = load<User>(PROFILE_KEY)
+    const merged = saved?.email === user.email ? { ...saved, ...user } : user
+    this.user = normalizeUser({
+      ...merged,
+      name: user.name || merged.name,
+      email: user.email,
+      avatarId: user.avatarId ?? merged.avatarId ?? DEFAULT_AVATAR,
+      setupComplete: merged.setupComplete ?? false,
+    })
     save(USER_KEY, this.user)
+    save(PROFILE_KEY, this.user)
     this.listeners.forEach((l) => l())
   }
 
@@ -128,10 +201,12 @@ export class LocalDataService implements DataService {
     if (!this.user) return
     this.user = { ...this.user, ...patch }
     save(USER_KEY, this.user)
+    save(PROFILE_KEY, this.user)
     this.listeners.forEach((l) => l())
   }
 
   signOut() {
+    if (this.user) save(PROFILE_KEY, this.user)
     this.user = null
     localStorage.removeItem(USER_KEY)
     this.listeners.forEach((l) => l())
@@ -141,12 +216,19 @@ export class LocalDataService implements DataService {
     return this.plans
   }
 
-  addFood(date: string, meal: MealType, foodId: string, mode: MealMode, iconId?: FoodIconId) {
+  addFood(
+    date: string,
+    meal: MealType,
+    foodId: string,
+    mode: MealMode,
+    iconId?: FoodIconId,
+    opts?: { quantity?: string; note?: string },
+  ) {
     const slot = slotFor(this.plans, date, meal)
     const key = mode === 'planned' ? 'planned' : 'logged'
     this.patchSlot(date, meal, {
       ...slot,
-      [key]: [...slot[key], newItem(foodId, iconId)],
+      [key]: [...slot[key], newItem(foodId, iconId, undefined, opts)],
     })
   }
 
@@ -156,12 +238,13 @@ export class LocalDataService implements DataService {
     name: string,
     iconId: FoodIconId,
     mode: MealMode,
+    opts?: { quantity?: string; note?: string },
   ) {
     const slot = slotFor(this.plans, date, meal)
     const key = mode === 'planned' ? 'planned' : 'logged'
     this.patchSlot(date, meal, {
       ...slot,
-      [key]: [...slot[key], newItem('custom', iconId, name.trim())],
+      [key]: [...slot[key], newItem('custom', iconId, name.trim(), opts)],
     })
   }
 
@@ -194,6 +277,15 @@ export class LocalDataService implements DataService {
       ),
       logged: [...slot.logged, loggedCopy],
     })
+  }
+
+  updateMealMeta(
+    date: string,
+    meal: MealType,
+    patch: { mood?: MealMood; mealNote?: string },
+  ) {
+    const slot = slotFor(this.plans, date, meal)
+    this.patchSlot(date, meal, { ...slot, ...patch })
   }
 
   subscribe(listener: () => void) {

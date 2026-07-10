@@ -1,4 +1,4 @@
-import type { MealType, PlanByDate, User, FoodIconId, MealMode } from '../../types'
+import type { MealType, PlanByDate, User, FoodIconId, MealMode, MealMood } from '../../types'
 
 /**
  * Storage abstraction the screens talk to. The app currently ships with a
@@ -18,6 +18,7 @@ export interface DataService {
     foodId: string,
     mode: MealMode,
     iconId?: FoodIconId,
+    opts?: { quantity?: string; note?: string },
   ): void
   addCustomFood(
     date: string,
@@ -25,9 +26,15 @@ export interface DataService {
     name: string,
     iconId: FoodIconId,
     mode: MealMode,
+    opts?: { quantity?: string; note?: string },
   ): void
   removeItem(date: string, meal: MealType, itemId: string, mode: MealMode): void
   logPlannedItem(date: string, meal: MealType, itemId: string): void
+  updateMealMeta(
+    date: string,
+    meal: MealType,
+    patch: { mood?: MealMood; mealNote?: string },
+  ): void
 
   /** Notifies on any data change; returns an unsubscribe function. */
   subscribe(listener: () => void): () => void

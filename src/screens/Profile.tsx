@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Bell,
   ChevronRight,
@@ -8,19 +8,23 @@ import {
   LogOut,
   Settings,
   ShieldCheck,
+  Target,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 import { Screen } from '../components/Screen'
 import { Illustration } from '../components/Illustration'
-import { ProfileEditSheet } from '../components/ProfileEditSheet'
 import { showToast } from '../components/toast'
 import { DEFAULT_AVATAR } from '../data/avatars'
 import { useUser } from '../state/useAppData'
 import { dataService } from '../services/data'
 
-const MENU = [
-  { label: 'Reminders', icon: Bell },
-  { label: 'Preferences', icon: Settings },
+const MENU: {
+  label: string
+  icon: typeof Bell
+  path?: string
+}[] = [
+  { label: 'Reminders', icon: Bell, path: '/reminders' },
+  { label: 'Preferences', icon: Settings, path: '/preferences' },
+  { label: 'My Goals', icon: Target, path: '/goals' },
   { label: 'About Nutri', icon: Info },
   { label: 'Help & Support', icon: HelpCircle },
   { label: 'Privacy Policy', icon: ShieldCheck },
@@ -29,45 +33,43 @@ const MENU = [
 export function Profile() {
   const user = useUser()
   const navigate = useNavigate()
-  const [editOpen, setEditOpen] = useState(false)
 
   const logOut = () => {
     dataService.signOut()
-    navigate('/welcome', { replace: true })
+    navigate('/splash', { replace: true })
   }
 
   return (
     <Screen withNav>
       <h1 className="pt-6 text-[22px] font-extrabold text-ink">Profile</h1>
 
-      {/* Identity card */}
       <button
-        onClick={() => setEditOpen(true)}
-        className="mt-4 flex w-full items-center gap-3.5 rounded-card bg-cream-dark p-3.5 text-left shadow-card active:bg-line-soft"
+        type="button"
+        onClick={() => navigate('/profile/edit')}
+        className="mt-6 flex w-full flex-col items-center text-center"
       >
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-tint">
+        <span className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand-tint shadow-card ring-4 ring-paper">
           <Illustration
             name={user?.avatarId ?? DEFAULT_AVATAR}
             className="h-full w-full object-cover"
           />
         </span>
-        <span className="flex-1">
-          <span className="block text-[17px] font-extrabold text-ink">
-            {user?.name ?? 'Guest'}
-          </span>
-          <span className="block text-[13.5px] font-semibold text-ink-soft">
-            Good food, every day! 💚
-          </span>
+        <span className="mt-3 text-[20px] font-extrabold text-ink">{user?.name ?? 'Guest'}</span>
+        <span className="mt-1 text-[14px] font-semibold text-ink-soft">
+          Good food, every day!
         </span>
-        <ChevronRight size={20} className="text-muted" />
+        <span className="mt-2 text-[13px] font-extrabold text-brand">Edit profile</span>
       </button>
 
-      {/* Menu */}
-      <div className="mt-4 overflow-hidden rounded-card bg-paper shadow-card">
-        {MENU.map(({ label, icon: Icon }, i) => (
+      <div className="mt-6 overflow-hidden rounded-card border border-line-soft bg-paper shadow-card">
+        {MENU.map(({ label, icon: Icon, path }, i) => (
           <button
             key={label}
-            onClick={() => showToast(`${label} is coming soon`)}
+            type="button"
+            onClick={() => {
+              if (path) navigate(path)
+              else showToast(`${label} is coming soon`)
+            }}
             className={`flex w-full items-center gap-3.5 px-4 py-3.5 text-left active:bg-cream-dark ${
               i > 0 ? 'border-t border-line-soft' : ''
             }`}
@@ -79,6 +81,7 @@ export function Profile() {
         ))}
 
         <button
+          type="button"
           onClick={logOut}
           className="flex w-full items-center gap-3.5 border-t border-line-soft px-4 py-3.5 text-left active:bg-cream-dark"
         >
@@ -87,10 +90,6 @@ export function Profile() {
           <LogOut size={18} className="text-danger/60" />
         </button>
       </div>
-
-      {user && (
-        <ProfileEditSheet open={editOpen} user={user} onClose={() => setEditOpen(false)} />
-      )}
     </Screen>
   )
 }

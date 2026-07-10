@@ -6,6 +6,9 @@ import type { Food, FoodIconId } from '../types'
  */
 export const FOODS: Food[] = [
   // Breakfast
+  { id: 'dosa', name: 'Dosa', emoji: '🌯', tint: '#fdeccd', iconId: 'icon-sandwich', usualMeal: 'breakfast' },
+  { id: 'chutney', name: 'Chutney', emoji: '🥣', tint: '#fdf3c9', iconId: 'icon-soup', usualMeal: 'breakfast' },
+  { id: 'sambar', name: 'Sambar', emoji: '🍲', tint: '#e6f0d6', iconId: 'icon-soup', usualMeal: 'breakfast' },
   { id: 'masala-dosa', name: 'Masala Dosa', emoji: '🌯', tint: '#fdeccd', iconId: 'icon-sandwich', usualMeal: 'breakfast' },
   { id: 'aloo-paratha', name: 'Aloo Paratha', emoji: '🫓', tint: '#fbe7c6', iconId: 'icon-pancakes', usualMeal: 'breakfast' },
   { id: 'poha', name: 'Poha', emoji: '🍛', tint: '#fdf3c9', iconId: 'icon-oatmeal-bowl', usualMeal: 'breakfast' },
@@ -13,6 +16,7 @@ export const FOODS: Food[] = [
   { id: 'upma', name: 'Upma', emoji: '🍲', tint: '#fdeccd', iconId: 'icon-oatmeal-bowl', usualMeal: 'breakfast' },
   { id: 'pancakes', name: 'Pancakes', emoji: '🥞', tint: '#fbe7c6', iconId: 'icon-pancakes', usualMeal: 'breakfast' },
   { id: 'idli-sambar', name: 'Idli Sambar', emoji: '🍥', tint: '#f4e8d2', iconId: 'icon-oatmeal-bowl', usualMeal: 'breakfast' },
+  { id: 'boiled-egg', name: 'Boiled Egg', emoji: '🥚', tint: '#fdf3c9', iconId: 'icon-egg', usualMeal: 'breakfast' },
 
   // Lunch
   { id: 'rice', name: 'Rice', emoji: '🍚', tint: '#f0ecd8', iconId: 'icon-avocado-bowl', usualMeal: 'lunch' },
@@ -47,6 +51,16 @@ const byId = new Map(FOODS.map((f) => [f.id, f]))
 export function getFood(id: string): Food {
   const food = byId.get(id)
   if (food) return food
+  if (id === 'custom') {
+    return {
+      id: 'custom',
+      name: 'Custom food',
+      emoji: '🍽️',
+      tint: '#f0ecd8',
+      iconId: 'icon-oatmeal-bowl' as FoodIconId,
+      usualMeal: 'lunch',
+    }
+  }
   return {
     id,
     name: id,

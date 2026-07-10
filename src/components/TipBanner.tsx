@@ -13,8 +13,8 @@ export function TipBanner({
 }) {
   return (
     <div
-      className={`flex items-center rounded-card bg-brand-tint ${
-        large ? 'gap-4 px-5 py-[1.125rem]' : 'gap-3 px-4 py-3'
+      className={`flex items-center rounded-card border border-brand/15 bg-brand-tint ${
+        large ? 'gap-4 px-5 py-5' : 'gap-3 px-4 py-3'
       }`}
     >
       <Illustration

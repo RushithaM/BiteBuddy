@@ -3,16 +3,26 @@ import { getFood } from '../../data/foods'
 import { addDays, todayISO, weekStart } from '../../lib/dates'
 
 let nextId = 1
-const item = (foodId: string) => {
+const item = (foodId: string, extra?: { quantity?: string; note?: string }) => {
   const food = getFood(foodId)
-  return { id: `seed-${nextId++}`, foodId, iconId: food.iconId }
+  return {
+    id: `seed-${nextId++}`,
+    foodId,
+    iconId: food.iconId,
+    ...extra,
+  }
 }
 
 const planned = (foodId: string): MealSlot => ({ planned: [item(foodId)], logged: [] })
-const logged = (foodId: string): MealSlot => ({ planned: [], logged: [item(foodId)] })
-const loggedMany = (...foodIds: string[]): MealSlot => ({
+const loggedMany = (
+  ...entries: (string | { foodId: string; quantity?: string })[]
+): MealSlot => ({
   planned: [],
-  logged: foodIds.map(item),
+  logged: entries.map((entry) =>
+    typeof entry === 'string'
+      ? item(entry)
+      : item(entry.foodId, { quantity: entry.quantity }),
+  ),
 })
 
 /**
@@ -37,9 +47,16 @@ export function buildSeedPlans(): PlanByDate {
     })
   }
 
-  // Today mirrors the Home screen — already eaten, so logged.
+  // Today mirrors the Home screen — breakfast is dosa + chutney + sambar.
   plans[todayISO()] = {
-    breakfast: logged('masala-dosa'),
+    breakfast: {
+      planned: [],
+      logged: [
+        item('dosa', { quantity: '2 pieces' }),
+        item('chutney', { quantity: '2 tbsp' }),
+        item('sambar', { quantity: '1 bowl' }),
+      ],
+    },
     lunch: loggedMany('rice', 'dal', 'paneer'),
   }
   return plans
