@@ -129,6 +129,22 @@ export function getFoodNutrition(foodId: string): FoodNutrition {
   return { ...DEFAULT, portionUnit, ...base }
 }
 
+/** Overlay per-food nutrition fetched from the API onto the local table. */
+export function applyCatalogNutrition(
+  rows: { id: string; calories: number; carbs: number; protein: number; fats: number; fiber: number; portionUnit: string }[],
+) {
+  for (const r of rows) {
+    NUTRITION[r.id] = {
+      calories: r.calories,
+      carbs: r.carbs,
+      protein: r.protein,
+      fats: r.fats,
+      fiber: r.fiber,
+      portionUnit: r.portionUnit,
+    }
+  }
+}
+
 export function scaleNutrition(n: FoodNutrition, multiplier: number): FoodNutrition {
   return {
     portionUnit: n.portionUnit,

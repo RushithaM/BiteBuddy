@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "icons": "node scripts/generate-icons.mjs",
     "food-icons:cutout": "node scripts/cutout-food-icons.mjs",
     "meal-scenes:cutout": "node scripts/remove-meal-image-bg.mjs"
@@ -28,6 +29,7 @@
     "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
     "vite": "^7.0.0",
-    "vite-plugin-pwa": "^1.0.1"
+    "vite-plugin-pwa": "^1.0.1",
+    "vitest": "^4.1.10"
   }
 }
