@@ -122,7 +122,7 @@ export function MealDetails() {
         }
       />
 
-      <div className="-mx-5 relative overflow-hidden rounded-b-[1.75rem] bg-paper shadow-card">
+      <div className="-mx-5 relative overflow-hidden">
         <MealSceneHero meal={meal} large />
         <button
           type="button"

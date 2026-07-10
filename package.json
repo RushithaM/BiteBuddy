@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "icons": "node scripts/generate-icons.mjs",
-    "food-icons:cutout": "node scripts/cutout-food-icons.mjs"
+    "food-icons:cutout": "node scripts/cutout-food-icons.mjs",
+    "meal-scenes:cutout": "node scripts/remove-meal-image-bg.mjs"
   },
   "dependencies": {
     "@fontsource-variable/nunito": "^5.2.5",

@@ -15,7 +15,6 @@ const JOBS = [
     out: 'meal-breakfast',
     scene: `${SRC}/scene-breakfast.png`,
     dish: `${SRC}/dish-dosa.png`,
-    cardBg: '#faf7e8',
     dishScale: 0.72,
     dishCenterY: 0.57,
     cropTopFrac: 0.5,
@@ -25,7 +24,6 @@ const JOBS = [
     out: 'meal-lunch',
     scene: `${SRC}/scene-lunch.png`,
     dish: `${SRC}/dish-rice-plate.png`,
-    cardBg: '#eef1f6',
     dishScale: 0.72,
     dishCenterY: 0.57,
     cropTopFrac: 0.5,
@@ -35,7 +33,6 @@ const JOBS = [
     out: 'meal-snack',
     scene: `${SRC}/scene-snack.png`,
     dish: `${SRC}/dish-snack-chai.png`,
-    cardBg: '#faf7e8',
     dishScale: 0.68,
     dishCenterY: 0.54,
     cropTopFrac: 0.44,
@@ -46,18 +43,12 @@ const JOBS = [
     out: 'meal-dinner',
     scene: `${SRC}/scene-dinner.png`,
     dish: `${SRC}/dish-dinner-bowl.png`,
-    cardBg: '#eef1f6',
     dishScale: 0.66,
     dishCenterY: 0.55,
     cropTopFrac: 0.48,
     cropSideFrac: 0.68,
   },
 ]
-
-function parseHex(hex) {
-  const h = hex.replace('#', '')
-  return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) }
-}
 
 /** Alpha mask: opaque centre, fading out over the outer `feather` fraction. */
 function edgeFeatherMask(size, feather = 0.16) {
@@ -94,7 +85,6 @@ for (const job of JOBS) {
     out,
     scene,
     dish,
-    cardBg,
     dishScale,
     dishCenterY,
     cropTopFrac,
@@ -103,7 +93,6 @@ for (const job of JOBS) {
   } = job
 
   let composed = await compositeDish(scene, dish, { dishScale, dishCenterY })
-  composed = await sharp(composed).flatten({ background: parseHex(cardBg) }).png().toBuffer()
 
   const meta = await sharp(composed).metadata()
   const side = Math.round(Math.min(meta.width, meta.height) * cropSideFrac)
@@ -120,5 +109,5 @@ for (const job of JOBS) {
   const layers = [{ input: await edgeFeatherMask(SIZE), blend: 'dest-in' }]
   await sharp(crop).composite(layers).png().toFile(`${OUT}/${out}.png`)
 
-  console.log(`✓ ${out}.png  cardBg ${cardBg}`)
+  console.log(`✓ ${out}.png`)
 }

@@ -39,6 +39,7 @@ export type IllustrationName =
   | 'avatar-broccoli'
   | 'avatar-banana'
   | 'today-day-end'
+  | 'today-progress-scene'
   | 'plus-menu-scene'
 
 const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: string }> = {
@@ -111,6 +112,14 @@ const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: str
         <span className="text-5xl">🌳</span>
         <span className="text-7xl">🥑</span>
         <span className="text-5xl">🌳</span>
+      </span>
+    ),
+  },
+  'today-progress-scene': {
+    label: 'Rolling hills landscape for today\'s progress card',
+    node: (
+      <span className="flex h-full w-full items-end justify-center bg-gradient-to-b from-sky-100 to-lime-100 leading-none">
+        <span className="text-4xl">🌿</span>
       </span>
     ),
   },
