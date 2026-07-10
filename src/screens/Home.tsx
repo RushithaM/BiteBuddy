@@ -155,11 +155,10 @@ function HomeMealCard({
       navigate(`/meal/${date}/${meal}?mode=logged`)
       return
     }
-    if (hasPlanned) {
-      navigate(`/meal/${date}/${meal}?mode=planned`)
-      return
-    }
-    navigate(`/add?date=${date}&meal=${meal}&mode=logged&returnTo=home`)
+    // Planned but not yet logged — start the add flow, then land on meal details.
+    navigate(
+      `/add?date=${date}&meal=${meal}&mode=logged&returnTo=${hasPlanned ? 'meal' : 'home'}`,
+    )
   }
 
   return (

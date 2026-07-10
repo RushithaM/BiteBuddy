@@ -27,6 +27,8 @@ them up automatically; until a file exists it renders an emoji placeholder.
 | `today-day-end`    | Home screen — avocado in hammock below dinner cards  |
 | `today-progress-scene` | Home screen — landscape behind today's progress card |
 | `plus-menu-scene`  | Plus menu sheet — avocado on grass footer scene      |
+| `item-detail-frame` | Item detail screen — decorative frame behind food art |
+| `item-detail-footer` | Item detail screen — rolling hills footer scene   |
 
 Regenerate all four with `node scripts/compose-meal-scenes.mjs`. Dish cutouts
 live in `src/assets/source-art/dish-*.png`; scene frames are `scene-*.png`.

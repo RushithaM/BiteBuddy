@@ -36,6 +36,13 @@ export function useMealActions() {
     ) => dataService.addCustomFood(date, meal, name, iconId, mode, opts),
     removeItem: (date: string, meal: MealType, itemId: string, mode: MealMode) =>
       dataService.removeItem(date, meal, itemId, mode),
+    updateItem: (
+      date: string,
+      meal: MealType,
+      itemId: string,
+      mode: MealMode,
+      patch: { quantity?: string; note?: string },
+    ) => dataService.updateItem(date, meal, itemId, mode, patch),
     logPlannedItem: (date: string, meal: MealType, itemId: string) =>
       dataService.logPlannedItem(date, meal, itemId),
     updateMealMeta: (
