@@ -96,12 +96,19 @@ export function aggregateMealNutrition(items: MealItem[]): FoodNutrition {
   return total
 }
 
-function quantityMultiplierFromLabel(label: string): number {
+export function quantityMultiplierFromLabel(label: string): number {
   if (label.startsWith('½ ')) return 0.5
   if (label.startsWith('1½ ')) return 1.5
   const match = label.match(/^([\d.]+)/)
   if (match) return parseFloat(match[1])
   return 1
+}
+
+/** Map a stored quantity label to the nearest portion-picker step index. */
+export function quantityStepIndexFromLabel(label: string): number {
+  const mult = quantityMultiplierFromLabel(label)
+  const idx = (QUANTITY_STEPS as readonly number[]).indexOf(mult)
+  return idx >= 0 ? idx : 1
 }
 
 /** Nutrition for a logged item, scaled by its stored quantity. */

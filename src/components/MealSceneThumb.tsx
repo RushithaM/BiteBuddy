@@ -13,7 +13,7 @@ export function MealSceneThumb({ meal }: { meal: MealType }) {
 
   if (sceneUrl) {
     return (
-      <span className="block h-[5.25rem] w-[6.75rem] shrink-0" aria-hidden>
+      <span className="block h-[4.75rem] w-[6.25rem] shrink-0" aria-hidden>
         <img src={sceneUrl} alt="" className="h-full w-full object-contain object-left" />
       </span>
     )
@@ -22,7 +22,7 @@ export function MealSceneThumb({ meal }: { meal: MealType }) {
   // emoji placeholder scene (no artwork present)
   return (
     <span
-      className="relative flex h-[5.25rem] w-[6.75rem] shrink-0 items-center justify-center"
+      className="relative flex h-[4.75rem] w-[6.25rem] shrink-0 items-center justify-center"
       style={{ backgroundColor: meta.sceneTint }}
       aria-hidden
     >
@@ -49,7 +49,7 @@ export function MealSceneHero({ meal, large = false }: { meal: MealType; large?:
         alt=""
         className={
           large
-            ? 'h-auto w-full object-cover'
+            ? 'block h-auto w-full object-contain'
             : 'h-44 w-full max-w-sm object-contain'
         }
         aria-hidden

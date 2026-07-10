@@ -230,6 +230,21 @@ export class LocalDataService implements DataService {
     this.setPlans(removeItemOp(this.plans, date, meal, itemId, mode))
   }
 
+  updateItem(
+    date: string,
+    meal: MealType,
+    itemId: string,
+    mode: MealMode,
+    patch: { quantity?: string; note?: string },
+  ) {
+    const slot = slotFor(this.plans, date, meal)
+    const key = mode === 'planned' ? 'planned' : 'logged'
+    this.patchSlot(date, meal, {
+      ...slot,
+      [key]: slot[key].map((i) => (i.id === itemId ? { ...i, ...patch } : i)),
+    })
+  }
+
   logPlannedItem(date: string, meal: MealType, itemId: string) {
     const next = logPlannedOp(this.plans, date, meal, itemId, new Date().toISOString())
     if (next) this.setPlans(next)

@@ -39,7 +39,10 @@ export type IllustrationName =
   | 'avatar-broccoli'
   | 'avatar-banana'
   | 'today-day-end'
+  | 'today-progress-scene'
   | 'plus-menu-scene'
+  | 'item-detail-frame'
+  | 'item-detail-footer'
 
 const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: string }> = {
   'logo-heart': {
@@ -114,9 +117,33 @@ const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: str
       </span>
     ),
   },
+  'today-progress-scene': {
+    label: 'Rolling hills landscape for today\'s progress card',
+    node: (
+      <span className="flex h-full w-full items-end justify-center bg-gradient-to-b from-sky-100 to-lime-100 leading-none">
+        <span className="text-4xl">🌿</span>
+      </span>
+    ),
+  },
   'plus-menu-scene': {
     label: 'Avocado mascot on grass',
     node: <span className="text-4xl leading-none">🥑</span>,
+  },
+  'item-detail-frame': {
+    label: 'Decorative frame for food item hero',
+    node: (
+      <span className="flex h-full w-full items-center justify-center rounded-full bg-paper text-6xl">
+        🍽️
+      </span>
+    ),
+  },
+  'item-detail-footer': {
+    label: 'Rolling hills footer for item detail screen',
+    node: (
+      <span className="flex h-full w-full items-end justify-center bg-gradient-to-b from-transparent to-lime-100 leading-none">
+        <span className="text-3xl">🌿</span>
+      </span>
+    ),
   },
 }
 

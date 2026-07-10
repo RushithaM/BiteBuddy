@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MoreVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Screen, SubHeader } from '../components/Screen'
 import { MealSceneHero } from '../components/MealSceneThumb'
@@ -64,8 +64,7 @@ function isMealMode(v: string | null): v is MealMode {
 }
 
 /**
- * Meal slot overview — hero image, nutrient chips, food list with edit/delete,
- * mood, and notes.
+ * Meal slot overview — hero image, nutrient chips, food list, mood, and notes.
  */
 export function MealDetails() {
   const navigate = useNavigate()
@@ -122,7 +121,7 @@ export function MealDetails() {
         }
       />
 
-      <div className="-mx-5 relative overflow-hidden rounded-b-[1.75rem] bg-paper shadow-card">
+      <div className="-mx-5 relative overflow-hidden">
         <MealSceneHero meal={meal} large />
         <button
           type="button"
@@ -155,26 +154,12 @@ export function MealDetails() {
       )}
 
       <section className="mt-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[15px] font-extrabold text-ink">What&apos;s included</h2>
-          <button
-            type="button"
-            onClick={openAdd}
-            className="text-[14px] font-extrabold text-brand active:opacity-70"
-          >
-            + Add item
-          </button>
-        </div>
+        <h2 className="text-[15px] font-extrabold text-ink">What&apos;s included</h2>
 
         {items.length === 0 ? (
-          <button
-            type="button"
-            onClick={openAdd}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-card border-2 border-dashed border-brand/35 bg-brand-tint/30 py-8 text-sm font-extrabold text-brand"
-          >
-            <Plus size={16} strokeWidth={2.8} />
-            Add your first food
-          </button>
+          <p className="mt-3 rounded-card border border-dashed border-line-soft bg-paper px-4 py-8 text-center text-sm font-semibold text-muted">
+            No foods yet — tap Edit meal to add
+          </p>
         ) : (
           <ul className="mt-2 overflow-hidden rounded-card border border-line-soft bg-paper shadow-card">
             {items.map((item, i) => {
@@ -183,38 +168,34 @@ export function MealDetails() {
               return (
                 <li
                   key={item.id}
-                  className={`flex items-center gap-3 px-3 py-3 ${
+                  className={`flex items-center gap-1 ${
                     i > 0 ? 'border-t border-line-soft' : ''
                   }`}
                 >
-                  <FoodIcon id={item.iconId} className="h-11 w-11 shrink-0 object-contain" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-bold text-ink">{name}</p>
-                    <p className="text-[12.5px] font-semibold text-muted">
-                      {itemQuantityLabel(item)}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-[13px] font-bold text-ink-soft">
-                    {itemNutrition.calories} kcal
-                  </span>
-                  <div className="flex shrink-0 items-center gap-0.5">
-                    <button
-                      type="button"
-                      aria-label={`Edit ${name}`}
-                      onClick={() => openItem(item.id)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full text-muted active:bg-cream-dark"
-                    >
-                      <Pencil size={16} strokeWidth={2.2} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={`Remove ${name}`}
-                      onClick={() => removeItem(date, meal, item.id, mode)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full text-danger active:bg-cream-dark"
-                    >
-                      <Trash2 size={16} strokeWidth={2.2} />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => openItem(item.id)}
+                    className="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 text-left active:bg-cream-dark"
+                  >
+                    <FoodIcon id={item.iconId} className="h-11 w-11 shrink-0 object-contain" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[15px] font-bold text-ink">{name}</p>
+                      <p className="text-[12.5px] font-semibold text-muted">
+                        {itemQuantityLabel(item)}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-[13px] font-bold text-ink-soft">
+                      {itemNutrition.calories} kcal
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${name}`}
+                    onClick={() => removeItem(date, meal, item.id, mode)}
+                    className="mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-danger active:bg-cream-dark"
+                  >
+                    <Trash2 size={16} strokeWidth={2.2} />
+                  </button>
                 </li>
               )
             })}

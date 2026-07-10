@@ -25,10 +25,15 @@ them up automatically; until a file exists it renders an emoji placeholder.
 | `meal-snack`       | Home meal card — chai + cookie, sunset scene         |
 | `meal-dinner`      | Home meal card — curry bowl, moonlit scene           |
 | `today-day-end`    | Home screen — avocado in hammock below dinner cards  |
+| `today-progress-scene` | Home screen — landscape behind today's progress card |
 | `plus-menu-scene`  | Plus menu sheet — avocado on grass footer scene      |
+| `item-detail-frame` | Item detail screen — decorative frame behind food art |
+| `item-detail-footer` | Item detail screen — rolling hills footer scene   |
 
 Regenerate all four with `node scripts/compose-meal-scenes.mjs`. Dish cutouts
 live in `src/assets/source-art/dish-*.png`; scene frames are `scene-*.png`.
+Run `npm run meal-scenes:cutout` to strip near-white outer margins from the
+final `meal-*.png` files so they blend on the cream UI.
 
 Food icons for Day Plan rows and the Add Food picker live in
 `src/assets/food-icons/` (see that folder's README). Catalog defaults are set

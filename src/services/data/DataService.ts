@@ -32,6 +32,13 @@ export interface DataService {
     opts?: { quantity?: string; note?: string },
   ): void
   removeItem(date: string, meal: MealType, itemId: string, mode: MealMode): void
+  updateItem(
+    date: string,
+    meal: MealType,
+    itemId: string,
+    mode: MealMode,
+    patch: { quantity?: string; note?: string },
+  ): void
   logPlannedItem(date: string, meal: MealType, itemId: string): void
   updateMealMeta(
     date: string,
