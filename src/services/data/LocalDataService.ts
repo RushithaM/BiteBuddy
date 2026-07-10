@@ -6,7 +6,7 @@ import { getFood } from '../../data/foods'
 import { EMPTY_MEAL_SLOT } from '../../lib/mealPlans'
 import { todayISO } from '../../lib/dates'
 import { buildSeedPlans } from './seed'
-import { addItemOp, logPlannedOp, makeItem, removeItemOp, updateMetaOp } from '../../lib/planOps'
+import { addItemOp, logPlannedOp, makeItem, removeItemOp, updateItemOp, updateMetaOp } from '../../lib/planOps'
 
 const PLANS_KEY = 'nutri.plans.v2'
 const USER_KEY = 'nutri.user.v1'
@@ -237,12 +237,7 @@ export class LocalDataService implements DataService {
     mode: MealMode,
     patch: { quantity?: string; note?: string },
   ) {
-    const slot = slotFor(this.plans, date, meal)
-    const key = mode === 'planned' ? 'planned' : 'logged'
-    this.patchSlot(date, meal, {
-      ...slot,
-      [key]: slot[key].map((i) => (i.id === itemId ? { ...i, ...patch } : i)),
-    })
+    this.setPlans(updateItemOp(this.plans, date, meal, itemId, mode, patch))
   }
 
   logPlannedItem(date: string, meal: MealType, itemId: string) {

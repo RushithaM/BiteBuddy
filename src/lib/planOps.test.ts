@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { MealItem, PlanByDate } from '../types'
-import { addItemOp, logPlannedOp, makeItem, removeItemOp, updateMetaOp } from './planOps'
+import { addItemOp, logPlannedOp, makeItem, removeItemOp, updateItemOp, updateMetaOp } from './planOps'
 
 const item = (id: string): MealItem => ({ id, foodId: 'dal', iconId: 'icon-soup' })
 
@@ -41,6 +41,14 @@ describe('planOps', () => {
     plans = addItemOp(plans, 'd', 'lunch', 'logged', item('b'))
     plans = removeItemOp(plans, 'd', 'lunch', 'a', 'planned')
     expect(plans.d.lunch).toEqual({ planned: [], logged: [item('b')] })
+  })
+
+  it('updateItemOp patches quantity/note on the matching mode only', () => {
+    let plans = addItemOp({}, 'd', 'lunch', 'planned', item('a'))
+    plans = addItemOp(plans, 'd', 'lunch', 'logged', item('a'))
+    plans = updateItemOp(plans, 'd', 'lunch', 'a', 'logged', { quantity: '2 cups' })
+    expect(plans.d.lunch!.logged[0].quantity).toBe('2 cups')
+    expect(plans.d.lunch!.planned[0].quantity).toBeUndefined()
   })
 
   it('updateMetaOp merges mood and note onto the slot', () => {

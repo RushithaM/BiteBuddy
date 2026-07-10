@@ -88,6 +88,40 @@ mealsRouter.post('/:id/log', async (req, res) => {
   res.json({ ok: true })
 })
 
+const updateBody = z
+  .object({
+    quantity: z.string(),
+    note: z.string(),
+  })
+  .partial()
+  .strict()
+
+mealsRouter.patch('/:id', async (req, res) => {
+  const mode = modeEnum.safeParse(req.query.mode)
+  if (!mode.success) {
+    res.status(400).json({ error: 'mode query param must be planned or logged' })
+    return
+  }
+  const body = updateBody.safeParse(req.body)
+  if (!body.success) {
+    res.status(400).json({ error: 'Invalid update payload' })
+    return
+  }
+  if (Object.keys(body.data).length === 0) {
+    res.status(400).json({ error: 'No fields to update' })
+    return
+  }
+  const { count } = await prisma.mealItem.updateMany({
+    where: { userId: req.userId, itemId: req.params.id, mode: mode.data },
+    data: body.data,
+  })
+  if (count === 0) {
+    res.status(404).json({ error: 'Item not found' })
+    return
+  }
+  res.json({ ok: true })
+})
+
 mealsRouter.delete('/:id', async (req, res) => {
   const mode = modeEnum.safeParse(req.query.mode)
   if (!mode.success) {

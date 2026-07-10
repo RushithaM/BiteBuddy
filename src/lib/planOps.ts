@@ -56,6 +56,22 @@ export function removeItemOp(
   })
 }
 
+export function updateItemOp(
+  plans: PlanByDate,
+  date: string,
+  meal: MealType,
+  itemId: string,
+  mode: MealMode,
+  patch: { quantity?: string; note?: string },
+): PlanByDate {
+  const slot = slotFor(plans, date, meal)
+  const key = mode === 'planned' ? 'planned' : 'logged'
+  return withSlot(plans, date, meal, {
+    ...slot,
+    [key]: slot[key].map((i) => (i.id === itemId ? { ...i, ...patch } : i)),
+  })
+}
+
 /** Returns null when the item is missing or already logged (no-op). */
 export function logPlannedOp(
   plans: PlanByDate,

@@ -4,7 +4,7 @@ import { api, ApiError, TOKEN_KEY, setOnUnauthorized } from '../api/client'
 import type { ApiFood, AuthResponse } from '../api/client'
 import { setCatalog } from '../../data/foods'
 import { applyCatalogNutrition } from '../../data/nutrition'
-import { addItemOp, logPlannedOp, makeItem, removeItemOp, updateMetaOp } from '../../lib/planOps'
+import { addItemOp, logPlannedOp, makeItem, removeItemOp, updateItemOp, updateMetaOp } from '../../lib/planOps'
 import { showToast } from '../../components/toast'
 
 /**
@@ -154,6 +154,18 @@ export class ApiDataService implements DataService {
   removeItem(date: string, meal: MealType, itemId: string, mode: MealMode) {
     this.mutate(removeItemOp(this.plans, date, meal, itemId, mode), () =>
       api(`/meals/${encodeURIComponent(itemId)}?mode=${mode}`, { method: 'DELETE' }),
+    )
+  }
+
+  updateItem(
+    date: string,
+    meal: MealType,
+    itemId: string,
+    mode: MealMode,
+    patch: { quantity?: string; note?: string },
+  ) {
+    this.mutate(updateItemOp(this.plans, date, meal, itemId, mode, patch), () =>
+      api(`/meals/${encodeURIComponent(itemId)}?mode=${mode}`, { method: 'PATCH', body: patch }),
     )
   }
 
