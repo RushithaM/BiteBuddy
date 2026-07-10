@@ -137,9 +137,6 @@ async function main() {
 
     await ctx2.close()
 
-    // Demo mode needs Vite restarted without VITE_API_URL — verified via LocalDataService + seed.ts
-    pass('14. Demo mode skipped (restart Vite without .env.local to verify manually)')
-
   } catch (e) {
     fail('UNHANDLED', e)
   } finally {

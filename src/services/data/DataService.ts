@@ -1,10 +1,6 @@
 import type { MealType, PlanByDate, User, FoodIconId, MealMode, MealMood } from '../../types'
 
-/**
- * Storage abstraction the screens talk to. The app currently ships with a
- * localStorage-backed mock implementation; a remote (API-backed)
- * implementation can be swapped in later without touching the screens.
- */
+/** Storage abstraction the screens talk to — backed by ApiDataService + the REST API. */
 export interface DataService {
   /** Resolves when any persisted session/data is loaded. Render app after. */
   init(): Promise<void>

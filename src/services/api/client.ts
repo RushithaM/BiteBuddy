@@ -1,6 +1,18 @@
 import type { User } from '../../types'
 
-export const API_URL = import.meta.env.VITE_API_URL as string | undefined
+/** Strip whitespace/trailing slash so `https://host/` and `https://host` both work. */
+function normalizeApiUrl(raw: string | undefined): string | undefined {
+  const trimmed = raw?.trim()
+  if (!trimmed) return undefined
+  return trimmed.replace(/\/+$/, '')
+}
+
+const resolved = normalizeApiUrl(import.meta.env.VITE_API_URL as string | undefined)
+if (!resolved) {
+  throw new Error('VITE_API_URL is required — set it in .env.local, .env.development, or .env.production')
+}
+
+export const API_URL = resolved
 export const TOKEN_KEY = 'nutri.token.v1'
 
 export class ApiError extends Error {

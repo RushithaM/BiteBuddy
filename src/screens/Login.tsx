@@ -70,7 +70,7 @@ export function Login() {
 
         <button
           type="button"
-          onClick={() => showToast('Password reset is not available in the demo')}
+          onClick={() => showToast('Password reset is not available yet')}
           className="-mt-1 self-end text-[13px] font-bold text-brand"
         >
           Forgot password?
