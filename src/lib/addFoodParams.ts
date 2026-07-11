@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import { todayISO, suggestedMealForNow } from './dates'
+import { todayISO, suggestedMealForNow, isFutureDate } from './dates'
 import { MEAL_TYPES, type MealMode, type MealType } from '../types'
 
 export type ReturnTo = 'home' | 'meal' | 'planner'
@@ -19,10 +19,13 @@ export function isReturnTo(v: string | null): v is ReturnTo {
 /** Shared date / meal / mode query params for the add-food flow. */
 export function useAddFoodParams() {
   const [params] = useSearchParams()
+  const date = params.get('date') ?? todayISO()
+  const mode = isMealMode(params.get('mode')) ? (params.get('mode') as MealMode) : 'logged'
   return {
-    date: params.get('date') ?? todayISO(),
+    date,
     meal: isMealType(params.get('meal')) ? (params.get('meal') as MealType) : suggestedMealForNow(),
-    mode: isMealMode(params.get('mode')) ? (params.get('mode') as MealMode) : 'logged',
+    // Future dates allow planning only.
+    mode: isFutureDate(date) ? 'planned' : mode,
     returnTo: isReturnTo(params.get('returnTo')) ? (params.get('returnTo') as ReturnTo) : 'home',
     customName: params.get('name') ?? undefined,
     iconId: params.get('iconId') ?? undefined,

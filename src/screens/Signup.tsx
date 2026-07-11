@@ -41,7 +41,7 @@ export function Signup() {
         <h1 className="text-[26px] font-extrabold text-ink">Create your account</h1>
         <Illustration
           name="login-mascot"
-          className="my-4 max-h-[9.5rem] w-full max-w-[11rem] object-contain"
+          className="my-4 max-h-[13rem] w-full max-w-[14rem] object-contain"
         />
       </div>
 

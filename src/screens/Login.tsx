@@ -39,9 +39,12 @@ export function Login() {
 
       <div className="flex flex-col items-center text-center">
         <h1 className="text-[26px] font-extrabold text-ink">Welcome back!</h1>
+        <p className="mt-1 text-[14px] font-semibold text-muted">
+          Good to see you again. Let&rsquo;s keep eating well! 🥑
+        </p>
         <Illustration
           name="login-mascot"
-          className="my-4 max-h-[9.5rem] w-full max-w-[11rem] object-contain"
+          className="my-4 max-h-[13rem] w-full max-w-[14rem] object-contain"
         />
       </div>
 

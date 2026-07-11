@@ -29,6 +29,9 @@ export type IllustrationName =
   | 'welcome-hero'
   | 'login-mascot'
   | 'login-bowl'
+  | 'setup-goal'
+  | 'setup-preference'
+  | 'setup-reminders'
   | 'mascot-avocado'
   | 'mascot-broccoli'
   | 'today-day-end'
@@ -64,6 +67,18 @@ const PLACEHOLDERS: Record<IllustrationName, { node: React.ReactNode; label: str
   'login-bowl': {
     label: 'Smiling salad bowl',
     node: <span className="text-8xl leading-none">🥗</span>,
+  },
+  'setup-goal': {
+    label: 'Avocado mascot waving a goal flag',
+    node: <span className="text-7xl leading-none">🥑</span>,
+  },
+  'setup-preference': {
+    label: 'Avocado mascot enjoying a healthy feast',
+    node: <span className="text-7xl leading-none">🥗</span>,
+  },
+  'setup-reminders': {
+    label: 'Avocado mascot holding a clock',
+    node: <span className="text-7xl leading-none">⏰</span>,
   },
   'mascot-avocado': {
     label: 'Avocado mascot',

@@ -4,7 +4,7 @@ import { Check } from 'lucide-react'
 import { Screen, BackButton } from '../components/Screen'
 import { PrimaryButton } from '../components/Buttons'
 import { AvatarPickerTile } from '../components/AvatarImage'
-import { Illustration } from '../components/Illustration'
+import { Illustration, type IllustrationName } from '../components/Illustration'
 import { ToggleSwitch } from '../components/ToggleSwitch'
 import { AVATAR_OPTIONS, DEFAULT_AVATAR } from '../data/avatars'
 import {
@@ -28,6 +28,12 @@ const STEP_TITLES: Record<Step, string> = {
   preference: 'Food preference',
   reminders: 'Meal reminders',
   avatar: 'Choose your avatar',
+}
+
+const STEP_ILLUSTRATIONS: Partial<Record<Step, IllustrationName>> = {
+  goal: 'setup-goal',
+  preference: 'setup-preference',
+  reminders: 'setup-reminders',
 }
 
 function defaultReminders(): Record<MealType, MealReminder> {
@@ -109,10 +115,10 @@ export function Setup() {
 
       <div className="flex flex-col items-center text-center">
         <h1 className="text-[24px] font-extrabold text-ink">{STEP_TITLES[step]}</h1>
-        {step === 'goal' && (
+        {STEP_ILLUSTRATIONS[step] && (
           <Illustration
-            name="login-mascot"
-            className="mt-3 max-h-[7.5rem] w-full max-w-[9rem] object-contain"
+            name={STEP_ILLUSTRATIONS[step]}
+            className="mt-3 max-h-[13rem] w-full max-w-[14rem] object-contain"
           />
         )}
       </div>

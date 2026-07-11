@@ -10,7 +10,7 @@ import { showToast } from '../components/toast'
 import { usePlans, useMealActions } from '../state/useAppData'
 import { dayHasItems, getMealSlot, itemsForMode } from '../lib/mealPlans'
 import { MEAL_TYPES, type MealMode } from '../types'
-import { todayISO } from '../lib/dates'
+import { todayISO, isFutureDate } from '../lib/dates'
 
 export function DayPlan() {
   const navigate = useNavigate()
@@ -19,6 +19,7 @@ export function DayPlan() {
   const { removeItem, logPlannedItem } = useMealActions()
   const [viewMode, setViewMode] = useState<MealMode>('planned')
   const dayPlan = plans[date] ?? {}
+  const isFuture = isFutureDate(date)
   const hasVisibleFood = dayHasItems(dayPlan, viewMode)
 
   const logItem = (meal: (typeof MEAL_TYPES)[number], itemId: string) => {
@@ -36,7 +37,7 @@ export function DayPlan() {
       <DayPlanDateLine date={date} />
 
       <div className="mt-3 mb-4">
-        <PlanLogToggle value={viewMode} onChange={setViewMode} />
+        <PlanLogToggle value={viewMode} onChange={setViewMode} logDisabled={isFuture} />
       </div>
 
       <div className="flex flex-col gap-3">
@@ -48,7 +49,7 @@ export function DayPlan() {
             items={itemsForMode(getMealSlot(dayPlan, meal), viewMode)}
             onAdd={() => navigate(`/add?date=${date}&meal=${meal}&mode=${viewMode}`)}
             onRemove={(itemId) => removeItem(date, meal, itemId, viewMode)}
-            onLog={(itemId) => logItem(meal, itemId)}
+            onLog={isFuture ? undefined : (itemId) => logItem(meal, itemId)}
           />
         ))}
       </div>

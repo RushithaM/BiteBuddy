@@ -110,6 +110,11 @@ export function defaultMealModeForDate(date: string, today = todayISO()): MealMo
   return date < today ? 'logged' : 'planned'
 }
 
+/** Future dates allow planning only — no logging. */
+export function isFutureDate(date: string, today = todayISO()): boolean {
+  return date > today
+}
+
 /** Suggest which meal slot to open based on time of day. */
 export function suggestedMealForNow(): MealType {
   const h = new Date().getHours()

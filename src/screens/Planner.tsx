@@ -14,7 +14,7 @@ import {
   loggedKcalOnDate,
   pendingPlannedCount,
 } from '../lib/plannerStats'
-import { formatPlannerDateShort, suggestedMealForNow, todayISO, defaultMealModeForDate } from '../lib/dates'
+import { formatPlannerDateShort, suggestedMealForNow, todayISO, defaultMealModeForDate, isFutureDate } from '../lib/dates'
 import { buildPlannerRestore, savePlannerRestore, type PlannerRestoreState } from '../lib/plannerRestore'
 import { MEAL_TYPES, type MealMode, type MealType } from '../types'
 
@@ -30,13 +30,14 @@ export function Planner() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const pendingScroll = useRef<number | null>(null)
   const dayPlan = plans[selectedDate] ?? {}
+  const isFuture = isFutureDate(selectedDate)
 
   useEffect(() => {
     const restore = location.state?.restore as PlannerRestoreState | undefined
     if (!restore) return
 
     setSelectedDate(restore.date)
-    setViewMode(restore.viewMode)
+    setViewMode(isFutureDate(restore.date) ? 'planned' : restore.viewMode)
     setExpandedMeals(restore.expandedMeals)
     pendingScroll.current = restore.scrollY
     navigate(location.pathname, { replace: true, state: null })
@@ -147,7 +148,7 @@ export function Planner() {
       </div>
 
       <div className="mt-4">
-        <PlanLogToggle value={viewMode} onChange={setViewMode} />
+        <PlanLogToggle value={viewMode} onChange={setViewMode} logDisabled={isFuture} />
       </div>
 
       <div className="mt-4 flex items-end justify-between gap-3">
@@ -178,7 +179,9 @@ export function Planner() {
             onExpandedChange={(open) => setMealExpanded(meal, open)}
             onAdd={() => openAddMeal(meal)}
             onOpenItem={(itemId) => openItem(meal, itemId)}
-            onLog={viewMode === 'planned' ? (itemId) => logItem(meal, itemId) : undefined}
+            onLog={
+              viewMode === 'planned' && !isFuture ? (itemId) => logItem(meal, itemId) : undefined
+            }
             onRemove={(itemId) => removeItem(selectedDate, meal, itemId, viewMode)}
           />
         ))}

@@ -12,9 +12,12 @@ const MODE_ICONS: Record<MealMode, LucideIcon> = {
 export function PlanLogToggle({
   value,
   onChange,
+  logDisabled = false,
 }: {
   value: MealMode
   onChange: (mode: MealMode) => void
+  /** Disable the Logging tab (e.g. future dates allow planning only). */
+  logDisabled?: boolean
 }) {
   return (
     <div
@@ -24,6 +27,7 @@ export function PlanLogToggle({
     >
       {(['planned', 'logged'] as MealMode[]).map((mode) => {
         const selected = value === mode
+        const disabled = mode === 'logged' && logDisabled
         const Icon = MODE_ICONS[mode]
         return (
           <button
@@ -31,9 +35,14 @@ export function PlanLogToggle({
             type="button"
             role="tab"
             aria-selected={selected}
+            disabled={disabled}
             onClick={() => onChange(mode)}
             className={`flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-[15px] font-extrabold transition-colors ${
-              selected ? 'bg-brand text-white shadow-card' : 'text-ink-soft active:bg-cream-dark'
+              selected
+                ? 'bg-brand text-white shadow-card'
+                : disabled
+                  ? 'text-ink-soft/40'
+                  : 'text-ink-soft active:bg-cream-dark'
             }`}
           >
             <Icon size={18} strokeWidth={2.2} />
