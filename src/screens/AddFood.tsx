@@ -53,7 +53,6 @@ export function AddFood() {
   }, [meal])
 
   const isSearching = query.trim().length > 0
-  const isScrollableList = showAll
 
   const foods = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -66,7 +65,7 @@ export function AddFood() {
     return showAll ? allFoodsForMeal(meal) : popularFoodsForMeal(meal)
   }, [query, meal, showAll])
 
-  const searchNeedsCardScroll = isSearching && foods.length > 6
+  const listScrollable = showAll || isSearching
 
   const openFood = (foodId: string) => {
     navigate(`/add/${foodId}/quantity?${addFoodQuery({ date, meal, mode, returnTo })}`)
@@ -83,13 +82,7 @@ export function AddFood() {
 
   return (
     <Screen className="!pb-0">
-      <div
-        className={`flex flex-col ${
-          isScrollableList
-            ? 'h-[calc(100dvh-env(safe-area-inset-top))] overflow-hidden'
-            : 'min-h-[calc(100dvh-env(safe-area-inset-top))]'
-        }`}
-      >
+      <div className="flex flex-col">
         <SubHeader title="Add meal" />
 
         <div className="grid shrink-0 grid-cols-4 gap-2">
@@ -139,7 +132,7 @@ export function AddFood() {
           />
         </label>
 
-        <div className={`mt-4 flex flex-col ${isScrollableList ? 'min-h-0 flex-1' : ''}`}>
+        <div className="mt-4 flex flex-col">
           <div className="flex shrink-0 items-center justify-between">
             <p className="text-[15px] font-extrabold text-ink">
               {isSearching ? 'Results' : showAll ? 'All foods' : 'Popular'}
@@ -164,18 +157,12 @@ export function AddFood() {
             )}
           </div>
 
-          <div
-            className={`mt-2 rounded-card border border-line-soft bg-paper shadow-card ${
-              isScrollableList ? 'relative min-h-0 flex-1 overflow-hidden' : ''
-            }`}
-          >
+          <div className="mt-2 rounded-card border border-line-soft bg-paper shadow-card">
             <ul
               className={`divide-y divide-line-soft ${
-                isScrollableList
-                  ? 'absolute inset-0 overflow-y-auto overscroll-contain'
-                  : searchNeedsCardScroll
-                    ? 'max-h-[min(22rem,50dvh)] overflow-y-auto overscroll-contain'
-                    : ''
+                listScrollable
+                  ? 'max-h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-22rem)] overflow-y-auto overscroll-contain'
+                  : ''
               }`}
             >
               {foods.map((food) => {
@@ -216,13 +203,7 @@ export function AddFood() {
           </div>
         </div>
 
-        <div
-          className={`z-10 shrink-0 pb-safe ${
-            isScrollableList
-              ? '-mx-5 mt-3 border-t border-line-soft/80 bg-cream px-5 pt-3'
-              : 'mt-4'
-          }`}
-        >
+        <div className="mt-4 shrink-0 pb-safe">
           <button
             type="button"
             onClick={() => setCustomOpen(true)}

@@ -1,4 +1,4 @@
-import { ChevronDown, CloudSun, Moon, Pencil, Plus, Sun, Sunset, Trash2 } from 'lucide-react'
+import { Check, ChevronDown, CloudSun, Moon, Plus, Sun, Sunset, Trash2 } from 'lucide-react'
 import { getFoodImageUrl } from './FoodTile'
 import { MEAL_META } from './meals'
 import { getFoodDisplayName, resolveItemIcon } from '../data/foods'
@@ -67,12 +67,14 @@ function FoodItemRow({
   item,
   done,
   onOpenItem,
+  onLog,
   onRemove,
   className = '',
 }: {
   item: MealItem
   done?: boolean
   onOpenItem: (itemId: string) => void
+  onLog?: (itemId: string) => void
   onRemove: (itemId: string) => void
   className?: string
 }) {
@@ -96,24 +98,30 @@ function FoodItemRow({
           >
             {name}
           </p>
-          <p className="mt-0.5 text-[12.5px] font-semibold text-muted">{detail}</p>
+          {done ? (
+            <p className="mt-0.5 text-[11.5px] font-extrabold text-brand">Logged ✓</p>
+          ) : (
+            <p className="mt-0.5 text-[12.5px] font-semibold text-muted">{detail}</p>
+          )}
         </span>
       </button>
-      <button
-        type="button"
-        aria-label={`Edit ${name}`}
-        onClick={() => onOpenItem(item.id)}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted active:bg-cream-dark"
-      >
-        <Pencil size={16} strokeWidth={2.2} />
-      </button>
+      {!done && onLog && (
+        <button
+          type="button"
+          aria-label={`Mark ${name} as eaten`}
+          onClick={() => onLog(item.id)}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper text-brand shadow-card active:bg-cream-dark"
+        >
+          <Check size={15} strokeWidth={2.2} />
+        </button>
+      )}
       <button
         type="button"
         aria-label={`Remove ${name}`}
         onClick={() => onRemove(item.id)}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-danger active:bg-cream-dark"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper text-danger shadow-card active:bg-cream-dark"
       >
-        <Trash2 size={16} strokeWidth={2.2} />
+        <Trash2 size={15} strokeWidth={2.2} />
       </button>
     </li>
   )
@@ -147,6 +155,7 @@ export function PlannerMealCard({
   onExpandedChange,
   onAdd,
   onOpenItem,
+  onLog,
   onRemove,
 }: {
   meal: MealType
@@ -156,6 +165,7 @@ export function PlannerMealCard({
   onExpandedChange: (expanded: boolean) => void
   onAdd: () => void
   onOpenItem: (itemId: string) => void
+  onLog?: (itemId: string) => void
   onRemove: (itemId: string) => void
 }) {
   const hasItems = items.length > 0
@@ -206,16 +216,20 @@ export function PlannerMealCard({
       {expanded && (
         <>
           <ul className="border-t border-line-soft px-4">
-            {items.map((item, i) => (
-              <FoodItemRow
-                key={item.id}
-                item={item}
-                done={mode === 'planned' && isPlannedItemLogged(item)}
-                onOpenItem={onOpenItem}
-                onRemove={onRemove}
-                className={i > 0 ? 'border-t border-line-soft' : undefined}
-              />
-            ))}
+            {items.map((item, i) => {
+              const done = mode === 'planned' && isPlannedItemLogged(item)
+              return (
+                <FoodItemRow
+                  key={item.id}
+                  item={item}
+                  done={done}
+                  onOpenItem={onOpenItem}
+                  onLog={mode === 'planned' && !done ? onLog : undefined}
+                  onRemove={onRemove}
+                  className={i > 0 ? 'border-t border-line-soft' : undefined}
+                />
+              )
+            })}
           </ul>
 
           <div className="flex justify-center border-t border-line-soft py-3">

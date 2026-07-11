@@ -7,11 +7,11 @@ import { DatePickerSheet } from '../components/DatePickerSheet'
 import { PlannerMealCard } from '../components/PlannerMealCard'
 import { PlanLogToggle } from '../components/PlanLogToggle'
 import { TipBanner } from '../components/TipBanner'
+import { showToast } from '../components/toast'
 import { usePlans, useMealActions } from '../state/useAppData'
 import { getMealSlot, itemsForMode } from '../lib/mealPlans'
 import {
   loggedKcalOnDate,
-  mealsWithItemsOnDate,
   pendingPlannedCount,
 } from '../lib/plannerStats'
 import { formatPlannerDateShort, suggestedMealForNow, todayISO, defaultMealModeForDate } from '../lib/dates'
@@ -23,7 +23,7 @@ export function Planner() {
   const navigate = useNavigate()
   const location = useLocation()
   const plans = usePlans()
-  const { removeItem } = useMealActions()
+  const { removeItem, logPlannedItem } = useMealActions()
   const [selectedDate, setSelectedDate] = useState(todayISO())
   const [viewMode, setViewMode] = useState<MealMode>(() => defaultMealModeForDate(todayISO()))
   const [expandedMeals, setExpandedMeals] = useState<Partial<Record<MealType, boolean>>>({})
@@ -56,11 +56,6 @@ export function Planner() {
     setViewMode(defaultMealModeForDate(date))
   }
 
-  const mealsFilled = useMemo(
-    () => mealsWithItemsOnDate(plans, selectedDate, viewMode),
-    [plans, selectedDate, viewMode],
-  )
-
   const dayKcal = useMemo(
     () => (viewMode === 'logged' ? loggedKcalOnDate(plans, selectedDate) : 0),
     [plans, selectedDate, viewMode],
@@ -90,6 +85,11 @@ export function Planner() {
     navigate(`/add?date=${selectedDate}&meal=${m}&mode=${viewMode}&returnTo=planner`)
   }
 
+  const logItem = (meal: MealType, itemId: string) => {
+    logPlannedItem(selectedDate, meal, itemId)
+    showToast('Marked as eaten')
+  }
+
   const openItem = (meal: MealType, itemId: string) => {
     const restore = buildPlannerRestore({
       date: selectedDate,
@@ -107,6 +107,9 @@ export function Planner() {
   const setMealExpanded = (meal: MealType, open: boolean) => {
     setExpandedMeals((prev) => ({ ...prev, [meal]: open }))
   }
+
+  const showDayStats =
+    (viewMode === 'logged' && dayKcal > 0) || (viewMode === 'planned' && pendingPlan > 0)
 
   return (
     <Screen withNav>
@@ -149,20 +152,19 @@ export function Planner() {
 
       <div className="mt-4 flex items-end justify-between gap-3">
         <h2 className="text-[15px] font-extrabold leading-snug text-brand">{sectionTitle}</h2>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="rounded-full bg-paper px-2.5 py-1 text-[11px] font-extrabold text-ink-soft shadow-card ring-1 ring-line-soft">
-            {mealsFilled}/{MEAL_TYPES.length} meals
-          </span>
-          {viewMode === 'logged' && dayKcal > 0 && (
-            <span className="flex items-center gap-1 text-[12px] font-extrabold text-brand">
-              <Flame size={13} className="text-orange-500" fill="currentColor" />
-              {dayKcal} kcal
-            </span>
-          )}
-          {viewMode === 'planned' && pendingPlan > 0 && (
-            <span className="text-[12px] font-bold text-muted">{pendingPlan} to eat</span>
-          )}
-        </div>
+        {showDayStats && (
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            {viewMode === 'logged' && dayKcal > 0 && (
+              <span className="flex items-center gap-1 text-[12px] font-extrabold text-brand">
+                <Flame size={13} className="text-orange-500" fill="currentColor" />
+                {dayKcal} kcal
+              </span>
+            )}
+            {viewMode === 'planned' && pendingPlan > 0 && (
+              <span className="text-[12px] font-bold text-muted">{pendingPlan} to eat</span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-3 flex flex-col gap-3">
@@ -176,6 +178,7 @@ export function Planner() {
             onExpandedChange={(open) => setMealExpanded(meal, open)}
             onAdd={() => openAddMeal(meal)}
             onOpenItem={(itemId) => openItem(meal, itemId)}
+            onLog={viewMode === 'planned' ? (itemId) => logItem(meal, itemId) : undefined}
             onRemove={(itemId) => removeItem(selectedDate, meal, itemId, viewMode)}
           />
         ))}
