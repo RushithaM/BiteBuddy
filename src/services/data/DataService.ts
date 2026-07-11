@@ -4,6 +4,8 @@ import type { MealType, PlanByDate, User, FoodIconId, MealMode, MealMood } from 
 export interface DataService {
   /** Resolves when any persisted session/data is loaded. Render app after. */
   init(): Promise<void>
+  /** True while the first / post-login API hydrate is in flight. */
+  isBootstrapping(): boolean
   getUser(): User | null
   signIn(email: string, password: string): Promise<User>
   signUp(name: string, email: string, password: string): Promise<User>

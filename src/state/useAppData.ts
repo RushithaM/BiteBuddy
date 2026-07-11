@@ -9,6 +9,13 @@ export function useUser() {
   )
 }
 
+export function useBootstrapping() {
+  return useSyncExternalStore(
+    useCallback((cb) => dataService.subscribe(cb), []),
+    () => dataService.isBootstrapping(),
+  )
+}
+
 export function usePlans() {
   return useSyncExternalStore(
     useCallback((cb) => dataService.subscribe(cb), []),

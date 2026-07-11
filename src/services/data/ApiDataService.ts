@@ -15,17 +15,31 @@ import { showToast } from '../../components/toast'
 export class ApiDataService implements DataService {
   private plans: PlanByDate = {}
   private user: User | null = null
+  private bootstrapping = false
   private listeners = new Set<() => void>()
 
   async init() {
     setOnUnauthorized(() => this.clearSession())
     if (!localStorage.getItem(TOKEN_KEY)) return
+    this.setBootstrapping(true)
     try {
       await this.hydrate()
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) return
       showToast('Could not load your data — check your connection')
+    } finally {
+      this.setBootstrapping(false)
     }
+  }
+
+  private setBootstrapping(value: boolean) {
+    if (this.bootstrapping === value) return
+    this.bootstrapping = value
+    this.emit()
+  }
+
+  isBootstrapping() {
+    return this.bootstrapping
   }
 
   private async hydrate() {
@@ -68,23 +82,33 @@ export class ApiDataService implements DataService {
   }
 
   async signIn(email: string, password: string) {
-    const { token, user } = await api<AuthResponse>('/auth/login', {
-      method: 'POST',
-      body: { email, password },
-    })
-    localStorage.setItem(TOKEN_KEY, token)
-    await this.hydrate()
-    return user
+    this.setBootstrapping(true)
+    try {
+      const { token, user } = await api<AuthResponse>('/auth/login', {
+        method: 'POST',
+        body: { email, password },
+      })
+      localStorage.setItem(TOKEN_KEY, token)
+      await this.hydrate()
+      return user
+    } finally {
+      this.setBootstrapping(false)
+    }
   }
 
   async signUp(name: string, email: string, password: string) {
-    const { token, user } = await api<AuthResponse>('/auth/signup', {
-      method: 'POST',
-      body: { name, email, password },
-    })
-    localStorage.setItem(TOKEN_KEY, token)
-    await this.hydrate()
-    return user
+    this.setBootstrapping(true)
+    try {
+      const { token, user } = await api<AuthResponse>('/auth/signup', {
+        method: 'POST',
+        body: { name, email, password },
+      })
+      localStorage.setItem(TOKEN_KEY, token)
+      await this.hydrate()
+      return user
+    } finally {
+      this.setBootstrapping(false)
+    }
   }
 
   updateUser(patch: Partial<User>) {
